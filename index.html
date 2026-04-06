@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minha Vida">
+<title>Minha Vida</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-text:#085041;
+    --orange:#BA7517;--orange-light:#FAEEDA;--orange-text:#854F0B;
+    --red:#D85A30;--red-light:#FAECE7;--red-text:#993C1D;
+    --blue:#378ADD;--blue-light:#E6F1FB;--blue-text:#185FA5;
+    --purple:#7F77DD;--pink:#D4537E;--amber:#BA7517;
+    --bg:#f8f9fa;--surface:#ffffff;--surface2:#f1f3f5;
+    --border:#e5e7eb;--text:#111827;--text2:#6b7280;--text3:#9ca3af;
+    --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,0.08);
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+
+  /* HEADER */
+  .hdr{background:linear-gradient(135deg,#0F6E56,#1D9E75 60%,#5DCAA5);padding:env(safe-area-inset-top,16px) 16px 20px;color:white;position:sticky;top:0;z-index:100}
+  .hdr-inner{max-width:600px;margin:0 auto}
+  .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .hdr-title{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+  .hdr-date{font-size:12px;color:rgba(255,255,255,0.75)}
+  .hdr-sub{font-size:13px;color:rgba(255,255,255,0.8)}
+
+  /* MAIN */
+  .main{max-width:600px;margin:0 auto;padding:16px}
+
+  /* METRICS */
+  .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  .mc{background:var(--surface);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .mc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .mc-val{font-size:26px;font-weight:700;line-height:1;color:var(--text)}
+  .mc-label{font-size:12px;color:var(--text2)}
+  .mc-sub{font-size:11px;font-weight:600;margin-top:2px}
+
+  /* PESO CARD */
+  .card{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px}
+  .card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .card-title span{font-size:16px}
+  .peso-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:600}
+  .chip-g{background:var(--green-light);color:var(--green-text)}
+  .chip-o{background:var(--orange-light);color:var(--orange-text)}
+  .chip-b{background:var(--blue-light);color:var(--blue-text)}
+  .peso-row{display:flex;gap:8px;margin-bottom:12px}
+  .peso-row input{flex:1;font-size:16px;padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);outline:none}
+  .peso-row input:focus{border-color:var(--green)}
+  .btn{background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn:active{opacity:0.85}
+  .btn-sm{font-size:12px;padding:6px 12px}
+  .btn-outline{background:transparent;color:var(--green);border:1.5px solid var(--green)}
+  .peso-log{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .peso-log::-webkit-scrollbar{display:none}
+  .pe{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;min-width:62px;flex-shrink:0}
+  .pe-date{font-size:10px;color:var(--text2)}
+  .pe-val{font-size:15px;font-weight:700;color:var(--text)}
+  .pe-diff{font-size:11px;font-weight:700}
+  .dn{color:var(--green)}.up{color:#E24B4A}
+  .bar-wrap{margin-top:12px}
+  .bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px}
+  .bar-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+  .bar-fill{height:100%;background:var(--green);border-radius:4px;transition:width 0.5s}
+
+  /* TABS */
+  .tabs-wrap{background:var(--surface);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;display:flex;gap:2px;overflow-x:auto}
+  .tabs-wrap::-webkit-scrollbar{display:none}
+  .tab{font-size:13px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;font-weight:500;display:flex;align-items:center;gap:5px;flex-shrink:0}
+  .tab.active{background:var(--green);color:white;font-weight:700}
+  .tab-cnt{font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700}
+  .tab.active .tab-cnt{background:rgba(255,255,255,0.25);color:white}
+  .tab:not(.active) .tab-cnt{background:var(--surface2);color:var(--text2)}
+
+  /* FILTROS */
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .fb{font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:500}
+  .fb.on{background:var(--text);color:white;border-color:var(--text)}
+
+  /* FRENTES */
+  .frente{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
+  .frente.novo{border-color:var(--green);border-width:2px}
+  .fh{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;user-select:none}
+  .fh:active{background:var(--surface2)}
+  .fdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .ftitle{font-size:15px;font-weight:600;color:var(--text);flex:1}
+  .fpct{font-size:12px;font-weight:700;color:var(--text2)}
+  .fcount{font-size:11px;color:var(--text3);margin-left:2px}
+  .chev{font-size:10px;color:var(--text3);transition:transform 0.2s;margin-left:4px}
+  .chev.op{transform:rotate(90deg)}
+  .pbar-wrap{height:4px;background:var(--surface2);margin:0 14px 0;border-radius:2px}
+  .pbar{height:100%;border-radius:2px;transition:width 0.4s}
+  .tasks{display:none;padding:4px 0 8px}
+  .tasks.op{display:block}
+  .task{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;cursor:pointer;border-top:1px solid var(--border)}
+  .task:active{background:var(--surface2)}
+  .tcheck{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;background:var(--surface);transition:all 0.15s}
+  .tcheck.dn{background:var(--green);border-color:var(--green)}
+  .tcheck.dn::after{content:'';display:block;width:10px;height:7px;border-left:2.5px solid white;border-bottom:2.5px solid white;transform:rotate(-45deg) translate(1px,-1px)}
+  .tbody{flex:1;min-width:0}
+  .ttext{font-size:14px;color:var(--text);line-height:1.4}
+  .ttext.dn{color:var(--text3);text-decoration:line-through}
+  .tnote{font-size:12px;color:var(--text2);margin-top:2px}
+  .tmeta{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+  .badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600}
+  .p1{background:var(--red-light);color:var(--red-text)}
+  .p2{background:var(--orange-light);color:var(--orange-text)}
+  .p3{background:var(--green-light);color:var(--green-text)}
+  .dbadge{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--text2);font-weight:500}
+  .dbadge.soon{background:var(--orange-light);color:var(--orange-text)}
+  .dbadge.late{background:var(--red-light);color:var(--red-text)}
+  .nbadge{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--green-light);color:var(--green-text);font-weight:700}
+  .empty{text-align:center;padding:2rem 1rem;color:var(--text2);font-size:14px}
+
+  /* BOTTOM NAV */
+  .bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:200}
+  .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;color:var(--text2);font-size:10px;font-weight:500;border:none;background:transparent;font-family:inherit}
+  .bn.active{color:var(--green)}
+  .bn-icon{font-size:20px}
+
+  /* VIEWS */
+  .view{display:none}
+  .view.active{display:block}
+
+  /* PLANILHA */
+  .table-wrap{overflow-x:auto;margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--surface2);padding:8px 10px;text-align:left;font-weight:600;color:var(--text2);border-bottom:2px solid var(--border)}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+  tr:last-child td{border-bottom:none}
+  tr:nth-child(even) td{background:#fafafa}
+  .tag{font-size:11px;padding:2px 7px;border-radius:6px;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-top">
+      <div class="hdr-title">Minha Vida</div>
+      <div class="hdr-date" id="hdr-date"></div>
+    </div>
+    <div class="hdr-sub">Visão geral de todas as frentes</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- VIEW: DASHBOARD -->
+  <div class="view active" id="view-dash">
+    <div class="metrics" id="metrics"></div>
+    <div id="peso-section"></div>
+    <div class="tabs-wrap" id="tabs"></div>
+    <div class="filters">
+      <button class="fb on" onclick="setFilter('all',this)">Todas</button>
+      <button class="fb" onclick="setFilter('pending',this)">Pendentes</button>
+      <button class="fb" onclick="setFilter('done',this)">Concluídas</button>
+      <button class="fb" onclick="setFilter('alta',this)">Urgentes</button>
+      <button class="fb" onclick="setFilter('soon',this)">Esta semana</button>
+    </div>
+    <div id="frentes-main"></div>
+  </div>
+
+  <!-- VIEW: PESO -->
+  <div class="view" id="view-peso">
+    <div id="peso-full"></div>
+  </div>
+
+  <!-- VIEW: PLANILHA -->
+  <div class="view" id="view-plan">
+    <div class="card">
+      <div class="card-title"><span>📊</span> Planilha de tarefas</div>
+      <div class="table-wrap"><table id="plan-table">
+        <thead><tr><th>Frente</th><th>Tarefa</th><th>Prioridade</th><th>Status</th><th>Data</th></tr></thead>
+        <tbody id="plan-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="bn active" onclick="setView('dash',this)"><div class="bn-icon">🏠</div>Dashboard</button>
+  <button class="bn" onclick="setView('peso',this)"><div class="bn-icon">⚖️</div>Peso</button>
+  <button class="bn" onclick="setView('plan',this)"><div class="bn-icon">📊</div>Planilha</button>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+const STORE = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+
+// ─── DATA ────────────────────────────────────────────────
+const grupos = [
+  {id:'saude',label:'Saúde',icon:'❤️'},
+  {id:'trabalho',label:'Trabalho',icon:'💼'},
+  {id:'familia',label:'Família',icon:'👨‍👩‍👧'},
+  {id:'infra',label:'Infra',icon:'🏠'},
+  {id:'financeiro',label:'Finanças',icon:'💰'},
+  {id:'pessoal',label:'Pessoal',icon:'✨'},
+];
+
+const defaultData = [
+  {id:'f0',title:'Emagrecimento',color:'#1D9E75',grupo:'saude',open:true,isNew:true,tasks:[
+    {id:'e1',text:'Comprar Wegovy 1mg',done:false,p:'alta',due:'2026-04-09',note:'Antes de quinta-feira'},
+    {id:'e2',text:'Iniciar o curso de plano alimentar',done:false,p:'alta',due:'2026-04-09',note:'Começa dia 9'},
+    {id:'e3',text:'Montar tabelas e cardápios do curso',done:false,p:'alta',due:'2026-04-15'},
+    {id:'e4',text:'Aplicar primeira dose do Wegovy',done:false,p:'alta',due:'2026-04-09'},
+    {id:'e5',text:'Agendar endócrino para acompanhamento',done:false,p:'alta',due:'2026-04-10'},
+    {id:'e6',text:'Pesagem semanal de controle',done:false,p:'media',note:'Todo sábado'},
+    {id:'e7',text:'Atingir meta de −10 kg',done:false,p:'alta',due:'2026-05-09'},
+  ]},
+  {id:'f8',title:'Hérnia inguinal',color:'#D85A30',grupo:'saude',open:false,tasks:[
+    {id:'t39',text:'Agendar cirurgião geral (São Camilo)',done:false,p:'alta',due:'2026-04-10'},
+    {id:'t40',text:'Exames e preparo pré-operatório',done:false,p:'alta'},
+    {id:'t41',text:'Agendamento da cirurgia',done:false,p:'alta'},
+  ]},
+  {id:'f9',title:'Unicomicose',color:'#BA7517',grupo:'saude',open:false,tasks:[
+    {id:'t42',text:'Marcar dermatologista',done:false,p:'media',due:'2026-04-20'},
+    {id:'t43',text:'Medicamentos',done:false,p:'media'},
+    {id:'t44',text:'Podóloga',done:false,p:'baixa'},
+  ]},
+  {id:'f10',title:'Gastro',color:'#378ADD',grupo:'saude',open:false,tasks:[
+    {id:'t45',text:'Agendar gastro',done:false,p:'media',due:'2026-04-20'},
+    {id:'t46',text:'Endoscopia',done:false,p:'media'},
+    {id:'t47',text:'Tratamento do estômago',done:false,p:'media'},
+  ]},
+  {id:'f11',title:'Agendamentos médicos',color:'#085041',grupo:'saude',open:false,tasks:[
+    {id:'t48',text:'Endócrino',done:false,p:'alta',due:'2026-04-10',note:'Passo 1 — agendar esta semana'},
+    {id:'t49',text:'Cirurgião geral',done:false,p:'alta',due:'2026-04-10',note:'Passo 1'},
+    {id:'t50',text:'Gastro',done:false,p:'media',due:'2026-04-20'},
+    {id:'t51',text:'Dermatologista',done:false,p:'media',due:'2026-04-20'},
+  ]},
+  {id:'f5',title:'HelpMed',color:'#378ADD',grupo:'trabalho',open:false,tasks:[
+    {id:'t20',text:'Saques',done:true,p:'alta'},
+    {id:'t21',text:'Entregar os APCs',done:false,p:'alta',due:'2026-04-10'},
+    {id:'t22',text:'Catálogo cab e pescoço',done:false,p:'media'},
+    {id:'t23',text:'Catálogo Buco',done:false,p:'media'},
+    {id:'t24',text:'Lista médicos',done:false,p:'media'},
+    {id:'t25',text:'Roteiro e agendamento',done:false,p:'alta',due:'2026-04-12'},
+    {id:'t26',text:'Enviar e-mail sobre Salomão',done:true,p:'alta'},
+  ]},
+  {id:'f1',title:'Inventário Sahara',color:'#7F77DD',grupo:'familia',open:false,tasks:[
+    {id:'t1',text:'Providenciar documentação para nomeação em cartório',done:true,p:'alta'},
+    {id:'t2',text:'Acompanhar outra lista',done:true,p:'media'},
+  ]},
+  {id:'f7',title:'Rotina & hábitos',color:'#D4537E',grupo:'pessoal',open:false,tasks:[
+    {id:'t31',text:'Quarta-feira — Culto',done:false,p:'alta',note:'Toda semana'},
+    {id:'t32',text:'Jogar videogame',done:false,p:'baixa',due:'2026-05-18'},
+    {id:'t33',text:'Ler todo dia 1h',done:false,p:'media',note:'Hábito diário'},
+    {id:'t34',text:'Arrumar Note para Chrome OS (Manu)',done:false,p:'media'},
+  ]},
+  {id:'f2',title:'Finanças pessoais',color:'#1D9E75',grupo:'financeiro',open:false,tasks:[
+    {id:'t3',text:'Ajustar cartões de crédito',done:false,p:'alta',due:'2026-04-20'},
+    {id:'t4',text:'Organizar finanças pessoais',done:false,p:'alta',due:'2026-04-20'},
+    {id:'t5',text:'Organizar finanças da empresa',done:false,p:'media',due:'2026-04-30'},
+    {id:'t6',text:'Organizar finanças da casa',done:false,p:'media',due:'2026-04-30'},
+    {id:'t7',text:'Organizar compras da casa',done:false,p:'baixa'},
+  ]},
+  {id:'f3',title:'Casa & reformas',color:'#D85A30',grupo:'infra',open:false,tasks:[
+    {id:'t8',text:'Arrumar escritório — bagunça',done:false,p:'media'},
+    {id:'t9',text:'Arrumar escritório — organização',done:false,p:'media'},
+    {id:'t10',text:'Espelho redondo — pintar',done:false,p:'baixa'},
+    {id:'t11',text:'Proteção garagem',done:false,p:'media'},
+    {id:'t12',text:'Pintura porta crianças + batedor',done:false,p:'baixa'},
+    {id:'t13',text:'Arrumar garagem',done:false,p:'baixa'},
+    {id:'t14',text:'Espelho banheiro',done:true,p:'alta'},
+    {id:'t15',text:'Luzes bolinha',done:true,p:'media'},
+    {id:'t16',text:'Mão francesa escadas',done:true,p:'alta'},
+  ]},
+  {id:'f4',title:'Vendas',color:'#BA7517',grupo:'infra',open:false,tasks:[
+    {id:'t17',text:'Geladeira — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
+    {id:'t18',text:'Máquina de lavar — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
+    {id:'t19',text:'Fogão — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
+  ]},
+  {id:'f6',title:'Carro & documentos',color:'#639922',grupo:'infra',open:false,tasks:[
+    {id:'t27',text:'Instalar tag — encontrar tag',done:true,p:'alta'},
+    {id:'t28',text:'Instalar tag — alterar placa e instalar',done:true,p:'alta'},
+    {id:'t29',text:'App Porto apólice',done:true,p:'media'},
+    {id:'t30',text:'IR do AP Eurus',done:true,p:'alta'},
+  ]},
+];
+
+// Load or init data
+let data = STORE.get('mv_tasks') || defaultData;
+let pesoLog = STORE.get('mv_peso') || [];
+let activeGrupo = STORE.get('mv_grupo') || 'saude';
+let activeFilter = 'all';
+let activeView = 'dash';
+
+function saveData(){ STORE.set('mv_tasks', data); }
+function savePeso(){ STORE.set('mv_peso', pesoLog); }
+function saveGrupo(){ STORE.set('mv_grupo', activeGrupo); }
+
+// ─── UTILS ───────────────────────────────────────────────
+const todayD = new Date(); todayD.setHours(0,0,0,0);
+const daysFrom = str => { if(!str) return null; const d=new Date(str); d.setHours(0,0,0,0); return Math.round((d-todayD)/86400000); };
+const fmtDate = str => { if(!str) return null; const d=new Date(str); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); };
+const pCls = {alta:'p1',media:'p2',baixa:'p3'};
+const pLbl = {alta:'Alta',media:'Média',baixa:'Baixa'};
+
+// ─── VIEWS ───────────────────────────────────────────────
+function setView(v, btn){
+  activeView = v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(v==='plan') renderPlanilha();
+  if(v==='peso') renderPesoFull();
+}
+
+// ─── METRICS ─────────────────────────────────────────────
+function renderMetrics(){
+  let total=0,done=0,urgent=0,soon=0;
+  data.forEach(f=>f.tasks.forEach(t=>{
+    total++;if(t.done)done++;
+    if(!t.done&&t.p==='alta')urgent++;
+    const d=daysFrom(t.due);if(!t.done&&d!==null&&d<=7)soon++;
+  }));
+  const pct = total?Math.round(done/total*100):0;
+  document.getElementById('metrics').innerHTML=`
+    <div class="mc">
+      <div class="mc-top"><div class="mc-icon" style="background:#E1F5EE">✅</div></div>
+      <div class="mc-val" style="color:#1D9E75">${done}</div>
+      <div class="mc-label">Concluídas</div>
+      <div class="mc-sub" style="color:#1D9E75">${pct}% do total</div>
+    </div>
+    <div class="mc">
+      <div class="mc-top"><div class="mc-icon" style="background:#FAEEDA">⏳</div></div>
+      <div class="mc-val" style="color:#BA7517">${total-done}</div>
+      <div class="mc-label">Pendentes</div>
+      <div class="mc-sub" style="color:#D85A30">${urgent} urgentes</div>
+    </div>
+    <div class="mc">
+      <div class="mc-top"><div class="mc-icon" style="background:#FAECE7">⚡</div></div>
+      <div class="mc-val" style="color:#D85A30">${soon}</div>
+      <div class="mc-label">Esta semana</div>
+      <div class="mc-sub" style="color:#6b7280">${data.length} frentes</div>
+    </div>
+    <div class="mc">
+      <div class="mc-top"><div class="mc-icon" style="background:#E6F1FB">📋</div></div>
+      <div class="mc-val">${total}</div>
+      <div class="mc-label">Total</div>
+      <div class="mc-sub" style="color:#1D9E75">${pct}% ok</div>
+    </div>`;
+}
+
+// ─── PESO ────────────────────────────────────────────────
+function addPeso(){
+  const inp = document.getElementById('pinput');
+  const v = parseFloat(inp.value);
+  if(isNaN(v)||v<40||v>300){alert('Digite um peso válido');return;}
+  const today = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const idx = pesoLog.findIndex(p=>p.date===today);
+  if(idx>=0) pesoLog[idx].val=v; else pesoLog.push({date:today,val:v});
+  inp.value='';
+  savePeso();
+  renderPesoCard();
+  if(activeView==='peso') renderPesoFull();
+}
+
+function renderPesoCard(){
+  const first = pesoLog.length?pesoLog[0].val:null;
+  const last = pesoLog.length?pesoLog[pesoLog.length-1].val:null;
+  const diff = (first&&last)?+(last-first).toFixed(1):null;
+  const pct = diff!==null?Math.min(100,Math.max(0,Math.round(Math.abs(diff)/10*100))):0;
+  const logHtml = pesoLog.length
+    ? pesoLog.slice().reverse().slice(0,10).map((p,i,arr)=>{
+        const prev=arr[i+1];
+        let dh='';
+        if(prev){const d=+(p.val-prev.val).toFixed(1);dh=`<div class="pe-diff ${d<=0?'dn':'up'}">${d<=0?'▼':'▲'}${Math.abs(d)}</div>`;}
+        return `<div class="pe"><div class="pe-date">${p.date}</div><div class="pe-val">${p.val}</div>${dh}</div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--text2)">Nenhum registro ainda</div>';
+
+  document.getElementById('peso-section').innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title"><span>⚖️</span>Tracker de peso</div>
+      <div class="peso-chips">
+        <span class="chip chip-b">Atual: ${last?last+' kg':'—'}</span>
+        <span class="chip chip-o">${diff!==null?(diff<=0?'Perda':'Ganho')+': '+Math.abs(diff)+' kg':'Perda: —'}</span>
+        <span class="chip chip-g">Meta: −10 kg até 9/mai</span>
+      </div>
+      <div class="peso-row">
+        <input type="number" id="pinput" placeholder="Peso de hoje (ex: 92.5)" step="0.1" min="40" max="300" inputmode="decimal"/>
+        <button class="btn btn-sm" onclick="addPeso()">Registrar</button>
+      </div>
+      <div class="peso-log">${logHtml}</div>
+      ${pesoLog.length?`
+      <div class="bar-wrap">
+        <div class="bar-labels"><span>Início: ${first} kg</span><span>Meta: −10 kg (${pct}%)</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>`:''}
+    </div>`;
+}
+
+function renderPesoFull(){
+  const first = pesoLog.length?pesoLog[0].val:null;
+  const last = pesoLog.length?pesoLog[pesoLog.length-1].val:null;
+  const diff = (first&&last)?+(last-first).toFixed(1):null;
+  const pct = diff!==null?Math.min(100,Math.max(0,Math.round(Math.abs(diff)/10*100))):0;
+  const tableRows = pesoLog.slice().reverse().map((p,i,arr)=>{
+    const prev=arr[i+1];
+    let dTxt='—', dColor='var(--text2)';
+    if(prev){const d=+(p.val-prev.val).toFixed(1);dTxt=(d<=0?'▼ ':'▲ ')+Math.abs(d);dColor=d<=0?'#1D9E75':'#E24B4A';}
+    return `<tr><td>${p.date}</td><td><strong>${p.val} kg</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td></tr>`;
+  }).join('');
+
+  document.getElementById('peso-full').innerHTML=`
+    <div class="card">
+      <div class="card-title"><span>⚖️</span>Registro de peso — Emagrecimento</div>
+      <div class="peso-chips" style="margin-bottom:16px">
+        <span class="chip chip-b">Atual: ${last?last+' kg':'—'}</span>
+        <span class="chip chip-o">${diff!==null?(diff<=0?'Perda':'Ganho')+': '+Math.abs(diff)+' kg':'—'}</span>
+        <span class="chip chip-g">Meta: −10 kg até 9/mai</span>
+      </div>
+      ${pesoLog.length?`
+      <div class="bar-wrap" style="margin-bottom:16px">
+        <div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>`:''}
+      <div class="peso-row">
+        <input type="number" id="pinput2" placeholder="Peso de hoje (ex: 92.5)" step="0.1" min="40" max="300" inputmode="decimal"/>
+        <button class="btn" onclick="addPeso2()">Registrar</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="card-title"><span>📅</span>Histórico completo</div>
+      ${pesoLog.length?`
+      <div class="table-wrap"><table>
+        <thead><tr><th>Data</th><th>Peso</th><th>Variação</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table></div>`:'<div style="font-size:13px;color:var(--text2);padding:1rem 0">Nenhum registro ainda. Registre seu peso toda manhã.</div>'}
+    </div>`;
+}
+
+function addPeso2(){
+  const inp = document.getElementById('pinput2');
+  const v = parseFloat(inp.value);
+  if(isNaN(v)||v<40||v>300){alert('Digite um peso válido');return;}
+  const today = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const idx = pesoLog.findIndex(p=>p.date===today);
+  if(idx>=0) pesoLog[idx].val=v; else pesoLog.push({date:today,val:v});
+  inp.value='';
+  savePeso();
+  renderPesoFull();
+  renderPesoCard();
+}
+
+// ─── TABS ────────────────────────────────────────────────
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = grupos.map(g=>{
+    const cnt = data.filter(f=>f.grupo===g.id).reduce((a,f)=>a+f.tasks.filter(t=>!t.done).length,0);
+    return `<button class="tab ${g.id===activeGrupo?'active':''}" onclick="setTab('${g.id}')">
+      ${g.icon} ${g.label}${cnt>0?`<span class="tab-cnt">${cnt}</span>`:''}
+    </button>`;
+  }).join('');
+}
+
+function setTab(gid){ activeGrupo=gid; saveGrupo(); renderTabs(); renderFreentes(); }
+
+// ─── FILTER ──────────────────────────────────────────────
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFreentes();
+}
+
+function taskVis(t){
+  if(activeFilter==='pending') return !t.done;
+  if(activeFilter==='done') return t.done;
+  if(activeFilter==='alta') return t.p==='alta'&&!t.done;
+  if(activeFilter==='soon'){const d=daysFrom(t.due);return !t.done&&d!==null&&d<=7;}
+  return true;
+}
+
+// ─── FRENTES ─────────────────────────────────────────────
+function toggleFrente(fid){
+  const f=data.find(f=>f.id===fid); f.open=!f.open; saveData(); renderFreentes();
+}
+function toggleTask(fid,tid){
+  const f=data.find(f=>f.id===fid); const t=f.tasks.find(t=>t.id===tid); t.done=!t.done;
+  saveData(); renderMetrics(); renderTabs(); renderFreentes();
+}
+
+function renderFreentes(){
+  const el = document.getElementById('frentes-main');
+  const frentes = data.filter(f=>f.grupo===activeGrupo&&f.tasks.some(t=>taskVis(t)));
+  if(!frentes.length){el.innerHTML=`<div class="empty">Nenhuma tarefa nesta categoria com o filtro selecionado.</div>`;return;}
+  el.innerHTML = frentes.map(frente=>{
+    const vt=frente.tasks.filter(t=>taskVis(t));
+    const tot=frente.tasks.length,dn=frente.tasks.filter(t=>t.done).length;
+    const pct=tot?Math.round(dn/tot*100):0;
+    const tasksHtml=vt.map(t=>{
+      const d=daysFrom(t.due);
+      let dcls='dbadge',dtxt='';
+      if(t.due){dtxt=fmtDate(t.due);if(d<0){dcls+=' late';dtxt='Atrasada';}else if(d<=3){dcls+=' soon';dtxt=d===0?'Hoje':d===1?'Amanhã':dtxt;}}
+      return `<div class="task" onclick="toggleTask('${frente.id}','${t.id}')">
+        <div class="tcheck ${t.done?'dn':''}"></div>
+        <div class="tbody">
+          <div class="ttext ${t.done?'dn':''}">${t.text}</div>
+          ${t.note?`<div class="tnote">${t.note}</div>`:''}
+          <div class="tmeta">
+            ${t.p?`<span class="badge ${pCls[t.p]}">${pLbl[t.p]}</span>`:''}
+            ${dtxt?`<span class="${dcls}">${dtxt}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="frente ${frente.isNew?'novo':''}">
+      <div class="fh" onclick="toggleFrente('${frente.id}')">
+        <div class="fdot" style="background:${frente.color}"></div>
+        <div class="ftitle">${frente.title}</div>
+        ${frente.isNew?'<span class="nbadge">Novo</span>':''}
+        <span class="fpct">${pct}%</span>
+        <span class="fcount">${dn}/${tot}</span>
+        <span class="chev ${frente.open?'op':''}">▶</span>
+      </div>
+      <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${frente.color}"></div></div>
+      <div class="tasks ${frente.open?'op':''}">${tasksHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── PLANILHA ────────────────────────────────────────────
+function renderPlanilha(){
+  const rows = [];
+  data.forEach(f=>{
+    const g = grupos.find(g=>g.id===f.grupo);
+    f.tasks.forEach(t=>{
+      rows.push(`<tr>
+        <td><span class="tag" style="background:${f.color}20;color:${f.color}">${g?g.label:f.grupo}</span></td>
+        <td>${t.text}</td>
+        <td><span class="badge ${pCls[t.p]||''}">${pLbl[t.p]||'—'}</span></td>
+        <td>${t.done?'<span style="color:#1D9E75;font-weight:700">✓ Feita</span>':'<span style="color:#BA7517">Pendente</span>'}</td>
+        <td>${t.due?fmtDate(t.due):'—'}</td>
+      </tr>`);
+    });
+  });
+  document.getElementById('plan-body').innerHTML = rows.join('');
+}
+
+// ─── INIT ────────────────────────────────────────────────
+document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+renderMetrics();
+renderPesoCard();
+renderTabs();
+renderFreentes();
+</script>
+</body>
+</html>
