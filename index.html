@@ -15,37 +15,70 @@
   --orange:#BA7517;--orange-light:#FAEEDA;--orange-text:#854F0B;
   --red:#D85A30;--red-light:#FAECE7;--red-text:#993C1D;
   --blue:#378ADD;--blue-light:#E6F1FB;--blue-text:#185FA5;
+  --purple:#7F77DD;--pink:#D4537E;
   --bg:#f4f6f8;--surface:#fff;--surface2:#f1f3f5;
   --border:#e5e7eb;--text:#111827;--text2:#6b7280;--text3:#9ca3af;
   --radius:12px;--radius-sm:8px;--shadow:0 1px 4px rgba(0,0,0,0.07);
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px}
+
+/* HEADER */
 .hdr{background:linear-gradient(135deg,#0F6E56,#1D9E75 60%,#5DCAA5);padding:16px 16px 20px;color:white;position:sticky;top:0;z-index:100}
-.hdr-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.hdr-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hdr-title{font-size:20px;font-weight:700}
 .hdr-date{font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px}
+.hdr-btns{display:flex;gap:6px;flex-shrink:0}
+
 .main{max-width:700px;margin:0 auto;padding:14px}
+
+/* METRICS */
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
-.mc{background:var(--surface);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border:1px solid var(--border);text-align:center}
-.mc-val{font-size:22px;font-weight:700;line-height:1}
-.mc-label{font-size:11px;color:var(--text2);margin-top:3px}
+.mc{background:var(--surface);border-radius:var(--radius);padding:12px 8px;box-shadow:var(--shadow);border:1px solid var(--border);text-align:center;cursor:pointer;transition:border-color 0.15s}
+.mc:hover{border-color:var(--green)}
+.mc.active-filter{border-color:var(--green);border-width:2px}
+.mc-val{font-size:20px;font-weight:700;line-height:1}
+.mc-label{font-size:10px;color:var(--text2);margin-top:3px}
 .mc-sub{font-size:10px;font-weight:600;margin-top:2px}
+
+/* CARDS */
 .card{background:var(--surface);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px}
 .card-title{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.peso-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+
+/* CHIPS */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .chip{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
 .chip-g{background:var(--green-light);color:var(--green-text)}
 .chip-o{background:var(--orange-light);color:var(--orange-text)}
 .chip-b{background:var(--blue-light);color:var(--blue-text)}
+.chip-r{background:var(--red-light);color:var(--red-text)}
+
+/* FORMS */
 .row{display:flex;gap:8px;align-items:center}
 .inp{flex:1;font-size:14px;padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:inherit}
 .inp:focus{border-color:var(--green)}
+.inp-sm{font-size:13px;padding:6px 8px}
+select.inp{cursor:pointer}
+
+/* BUTTONS */
 .btn{background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
 .btn:active{opacity:0.85}
 .btn-red{background:#E24B4A}
+.btn-orange{background:var(--orange)}
 .btn-outline{background:transparent;color:var(--green);border:1.5px solid var(--green)}
-.btn-sm{padding:5px 10px;font-size:12px}
 .btn-ghost{background:rgba(255,255,255,0.2);color:white;border:none}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 7px;font-size:11px}
+
+/* PESO / CORPO */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
+.stat-val{font-size:20px;font-weight:700;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px}
+.stat-sub{font-size:11px;font-weight:600;margin-top:2px}
+.bar-wrap{margin-top:10px}
+.bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px}
+.bar-track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
 .peso-log{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:10px}
 .peso-log::-webkit-scrollbar{display:none}
 .pe{background:var(--surface2);border-radius:var(--radius-sm);padding:6px 8px;text-align:center;min-width:54px;flex-shrink:0}
@@ -53,10 +86,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pe-val{font-size:13px;font-weight:700}
 .pe-diff{font-size:10px;font-weight:700}
 .c-dn{color:var(--green)}.c-up{color:#E24B4A}
-.bar-wrap{margin-top:10px}
-.bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px}
-.bar-track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
-.bar-fill{height:100%;background:var(--green);border-radius:4px;transition:width 0.5s}
+.section-divider{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+
+/* TABS (grupos) */
 .tabs-wrap{background:var(--surface);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;gap:2px;overflow-x:auto}
 .tabs-wrap::-webkit-scrollbar{display:none}
 .tab{font-size:12px;padding:7px 10px;border-radius:8px;border:none;background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;font-weight:500;flex-shrink:0}
@@ -64,16 +96,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tab-cnt{font-size:10px;padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px}
 .tab.active .tab-cnt{background:rgba(255,255,255,0.25);color:white}
 .tab:not(.active) .tab-cnt{background:var(--surface2);color:var(--text2)}
+
+/* TOOLBAR */
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .fb{font-size:12px;padding:4px 11px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:500}
 .fb.on{background:var(--text);color:white;border-color:var(--text)}
+.fb.on-red{background:#E24B4A;color:white;border-color:#E24B4A}
 .sort-btn{font-size:12px;padding:4px 11px;border-radius:20px;border:1.5px solid var(--blue);background:var(--blue-light);color:var(--blue-text);cursor:pointer;font-family:inherit;font-weight:600}
 .sort-btn.on{background:var(--blue);color:white;border-color:var(--blue)}
+
+/* FRENTES */
 .frente{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
 .fh{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
 .fh:active{background:var(--surface2)}
 .fdot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .ftitle{font-size:14px;font-weight:600;flex:1}
+.fsubtitle{font-size:11px;color:var(--text2);font-weight:400}
 .fpct{font-size:12px;font-weight:700;color:var(--text2)}
 .chev{font-size:10px;color:var(--text3);transition:transform 0.2s;margin-left:2px}
 .chev.op{transform:rotate(90deg)}
@@ -97,14 +135,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .p3{background:var(--green-light);color:var(--green-text)}
 .dbadge{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--surface2);color:var(--text2);font-weight:500}
 .dbadge.soon{background:var(--orange-light);color:var(--orange-text)}
-.dbadge.late{background:var(--red-light);color:var(--red-text)}
+.dbadge.late{background:var(--red-light);color:var(--red-text);font-weight:700}
 .empty{text-align:center;padding:2rem;color:var(--text2);font-size:13px}
+
+/* PRIORITY DOT (planilha) */
+.pdot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* PLANILHA */
 .plan-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:580px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:640px}
 thead tr{background:var(--surface2)}
-th{padding:9px 10px;text-align:left;font-weight:600;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer}
-th:hover{background:#e8eaed}
+th{padding:9px 10px;text-align:left;font-weight:600;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap}
 td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#fafafa}
@@ -112,9 +154,12 @@ td input[type=text],td input[type=date],td select{font-size:12px;padding:4px 6px
 td input:focus,td select:focus{border-color:var(--green)}
 .tag{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:600;white-space:nowrap}
 .action-btns{display:flex;gap:4px}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:16px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:flex-end;justify-content:center;padding:0}
 .modal-bg.open{display:flex}
-.modal{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:20px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
 .modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
 .field{margin-bottom:12px}
 .field label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px}
@@ -122,12 +167,26 @@ td input:focus,td select:focus{border-color:var(--green)}
 .field input:focus,.field select:focus{border-color:var(--green)}
 .modal-btns{display:flex;gap:8px;margin-top:16px}
 .modal-btns button{flex:1}
+
+/* FRENTE MANAGER */
+.frente-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.frente-item:last-child{border-bottom:none}
+.color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer}
+.color-picker-wrap{position:relative;display:inline-block}
+
+/* BOTTOM NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:200}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:8px 0;color:var(--text2);font-size:10px;font-weight:500;border:none;background:transparent;font-family:inherit}
 .bn.active{color:var(--green)}
 .bn-icon{font-size:20px}
 .view{display:none}
 .view.active{display:block}
+
+/* IMC */
+.imc-box{border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;text-align:center}
+.imc-val{font-size:28px;font-weight:700}
+.imc-label{font-size:13px;font-weight:600;margin-top:2px}
+.imc-range{font-size:11px;color:var(--text2);margin-top:2px}
 </style>
 </head>
 <body>
@@ -138,43 +197,50 @@ td input:focus,td select:focus{border-color:var(--green)}
       <div class="hdr-title">Minha Vida</div>
       <div class="hdr-date" id="hdr-date"></div>
     </div>
-    <button class="btn btn-sm btn-ghost" onclick="openModal()">+ Tarefa</button>
+    <div class="hdr-btns">
+      <button class="btn btn-sm btn-ghost" onclick="openModal('task')">+ Tarefa</button>
+      <button class="btn btn-sm btn-ghost" onclick="openModal('frente')" title="Gerenciar frentes">⚙️</button>
+    </div>
   </div>
 </div>
 
 <div class="main">
 
+  <!-- DASHBOARD -->
   <div class="view active" id="view-dash">
     <div class="metrics" id="metrics"></div>
     <div id="peso-card"></div>
     <div class="tabs-wrap" id="tabs"></div>
     <div class="toolbar">
-      <button class="fb on" onclick="setFilter('all',this)">Todas</button>
-      <button class="fb" onclick="setFilter('pending',this)">Pendentes</button>
-      <button class="fb" onclick="setFilter('done',this)">Concluídas</button>
-      <button class="fb" onclick="setFilter('alta',this)">Urgentes</button>
+      <button class="fb on" id="fb-all" onclick="setFilter('all',this)">Todas</button>
+      <button class="fb" id="fb-pending" onclick="setFilter('pending',this)">Pendentes</button>
+      <button class="fb" id="fb-late" onclick="setFilter('late',this)">Atrasadas</button>
+      <button class="fb" id="fb-done" onclick="setFilter('done',this)">Concluídas</button>
+      <button class="fb" id="fb-alta" onclick="setFilter('alta',this)">Urgentes</button>
       <button class="sort-btn" id="sort-btn" onclick="toggleSort()">📅 Por data</button>
     </div>
     <div id="frentes-main"></div>
   </div>
 
+  <!-- MEU CORPO -->
   <div class="view" id="view-peso">
-    <div id="peso-full"></div>
+    <div id="corpo-full"></div>
   </div>
 
+  <!-- PLANILHA -->
   <div class="view" id="view-plan">
     <div class="card">
       <div class="card-title">📊 Planilha — edite diretamente aqui</div>
       <div class="plan-toolbar">
-        <button class="btn btn-sm" onclick="openModal()">+ Nova tarefa</button>
-        <select class="inp" style="max-width:160px" id="plan-fg" onchange="renderPlan()">
-          <option value="">Todas as frentes</option>
+        <button class="btn btn-sm" onclick="openModal('task')">+ Nova tarefa</button>
+        <select class="inp inp-sm" style="max-width:150px" id="plan-fg" onchange="renderPlan()">
+          <option value="">Todas</option>
         </select>
-        <select class="inp" style="max-width:140px" id="plan-sort" onchange="renderPlan()">
-          <option value="frente">Ordenar: Frente</option>
-          <option value="due">Ordenar: Vencimento</option>
-          <option value="p">Ordenar: Prioridade</option>
-          <option value="status">Ordenar: Status</option>
+        <select class="inp inp-sm" style="max-width:140px" id="plan-sort" onchange="renderPlan()">
+          <option value="frente">Por frente</option>
+          <option value="due">Por vencimento</option>
+          <option value="p">Por prioridade</option>
+          <option value="status">Por status</option>
         </select>
       </div>
       <div class="table-wrap">
@@ -182,11 +248,12 @@ td input:focus,td select:focus{border-color:var(--green)}
           <thead><tr>
             <th style="width:32px">✓</th>
             <th>Frente</th>
+            <th>Subgrupo</th>
             <th>Tarefa</th>
-            <th style="width:100px">Prioridade</th>
-            <th style="width:130px">Vencimento</th>
+            <th style="width:38px">Pri.</th>
+            <th style="width:120px">Vencimento</th>
             <th>Nota</th>
-            <th style="width:80px">Ações</th>
+            <th style="width:72px">Ações</th>
           </tr></thead>
           <tbody id="plan-body"></tbody>
         </table>
@@ -196,37 +263,30 @@ td input:focus,td select:focus{border-color:var(--green)}
 
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="bnav">
   <button class="bn active" onclick="setView('dash',this)"><div class="bn-icon">🏠</div>Dashboard</button>
-  <button class="bn" onclick="setView('peso',this)"><div class="bn-icon">⚖️</div>Peso</button>
+  <button class="bn" onclick="setView('peso',this)"><div class="bn-icon">💪</div>Meu corpo</button>
   <button class="bn" onclick="setView('plan',this)"><div class="bn-icon">📊</div>Planilha</button>
 </div>
 
+<!-- MODAL MULTI-PURPOSE -->
 <div class="modal-bg" id="modal">
-  <div class="modal">
-    <h3 id="modal-title">Nova tarefa</h3>
-    <div class="field"><label>Tarefa *</label><input id="m-text" placeholder="Descrição da tarefa"/></div>
-    <div class="field"><label>Frente *</label><select id="m-frente"></select></div>
-    <div class="field"><label>Prioridade</label>
-      <select id="m-p">
-        <option value="alta">🔴 Alta (urgente)</option>
-        <option value="media" selected>🟡 Média</option>
-        <option value="baixa">🟢 Baixa</option>
-      </select>
-    </div>
-    <div class="field"><label>Data de vencimento</label><input type="date" id="m-due"/></div>
-    <div class="field"><label>Nota / observação</label><input id="m-note" placeholder="Opcional"/></div>
-    <div class="modal-btns">
-      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn" onclick="saveModal()">Salvar</button>
-    </div>
+  <div class="modal" id="modal-inner">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
   </div>
 </div>
 
 <script>
-const S={get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+// ── STORAGE ──────────────────────────────────────────────
+const S={
+  get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+};
 
-const grupos=[
+// ── GRUPOS (frentes maiores) ──────────────────────────────
+const GRUPOS_DEFAULT=[
   {id:'todas',label:'Todas',icon:'🌐'},
   {id:'saude',label:'Saúde',icon:'❤️'},
   {id:'trabalho',label:'Trabalho',icon:'💼'},
@@ -234,10 +294,30 @@ const grupos=[
   {id:'infra',label:'Infra',icon:'🏠'},
   {id:'financeiro',label:'Finanças',icon:'💰'},
   {id:'pessoal',label:'Pessoal',icon:'✨'},
+  {id:'lazer',label:'Lazer',icon:'🎮'},
+  {id:'viagens',label:'Viagens',icon:'✈️'},
+  {id:'estudos',label:'Estudos',icon:'📚'},
+  {id:'esportes',label:'Esportes',icon:'🏃'},
 ];
 
-const defaultData=[
-  {id:'f0',title:'Emagrecimento',color:'#1D9E75',grupo:'saude',open:true,tasks:[
+// ── SUBGRUPOS (frentes dentro dos grupos) ─────────────────
+const FRENTES_DEFAULT=[
+  {id:'f0',title:'Emagrecimento',color:'#1D9E75',grupo:'saude',open:true},
+  {id:'f8',title:'Hérnia inguinal',color:'#D85A30',grupo:'saude',open:false},
+  {id:'f9',title:'Unicomicose',color:'#BA7517',grupo:'saude',open:false},
+  {id:'f10',title:'Gastro',color:'#378ADD',grupo:'saude',open:false},
+  {id:'f11',title:'Agendamentos médicos',color:'#085041',grupo:'saude',open:false},
+  {id:'f5',title:'HelpMed',color:'#378ADD',grupo:'trabalho',open:false},
+  {id:'f1',title:'Inventário Sahara',color:'#7F77DD',grupo:'familia',open:false},
+  {id:'f7',title:'Rotina & hábitos',color:'#D4537E',grupo:'pessoal',open:false},
+  {id:'f2',title:'Finanças pessoais',color:'#1D9E75',grupo:'financeiro',open:false},
+  {id:'f3',title:'Casa & reformas',color:'#D85A30',grupo:'infra',open:false},
+  {id:'f4',title:'Vendas',color:'#BA7517',grupo:'infra',open:false},
+  {id:'f6',title:'Carro & documentos',color:'#639922',grupo:'infra',open:false},
+];
+
+const TASKS_DEFAULT={
+  f0:[
     {id:'e1',text:'Comprar Wegovy 1mg',done:false,p:'alta',due:'2026-04-09',note:'Antes de quinta-feira'},
     {id:'e2',text:'Iniciar o curso de plano alimentar',done:false,p:'alta',due:'2026-04-09',note:'Começa dia 9'},
     {id:'e3',text:'Montar tabelas e cardápios do curso',done:false,p:'alta',due:'2026-04-15'},
@@ -245,29 +325,29 @@ const defaultData=[
     {id:'e5',text:'Agendar endócrino',done:false,p:'alta',due:'2026-04-10'},
     {id:'e6',text:'Pesagem semanal',done:false,p:'media',note:'Todo sábado'},
     {id:'e7',text:'Atingir meta de −10 kg',done:false,p:'alta',due:'2026-05-09'},
-  ]},
-  {id:'f8',title:'Hérnia inguinal',color:'#D85A30',grupo:'saude',open:false,tasks:[
+  ],
+  f8:[
     {id:'t39',text:'Agendar cirurgião geral (São Camilo)',done:false,p:'alta',due:'2026-04-10'},
     {id:'t40',text:'Exames e preparo pré-operatório',done:false,p:'alta'},
     {id:'t41',text:'Agendamento da cirurgia',done:false,p:'alta'},
-  ]},
-  {id:'f9',title:'Unicomicose',color:'#BA7517',grupo:'saude',open:false,tasks:[
+  ],
+  f9:[
     {id:'t42',text:'Marcar dermatologista',done:false,p:'media',due:'2026-04-20'},
     {id:'t43',text:'Medicamentos',done:false,p:'media'},
     {id:'t44',text:'Podóloga',done:false,p:'baixa'},
-  ]},
-  {id:'f10',title:'Gastro',color:'#378ADD',grupo:'saude',open:false,tasks:[
+  ],
+  f10:[
     {id:'t45',text:'Agendar gastro',done:false,p:'media',due:'2026-04-20'},
     {id:'t46',text:'Endoscopia',done:false,p:'media'},
     {id:'t47',text:'Tratamento do estômago',done:false,p:'media'},
-  ]},
-  {id:'f11',title:'Agendamentos médicos',color:'#085041',grupo:'saude',open:false,tasks:[
+  ],
+  f11:[
     {id:'t48',text:'Endócrino',done:false,p:'alta',due:'2026-04-10',note:'Passo 1'},
     {id:'t49',text:'Cirurgião geral',done:false,p:'alta',due:'2026-04-10',note:'Passo 1'},
     {id:'t50',text:'Gastro',done:false,p:'media',due:'2026-04-20'},
     {id:'t51',text:'Dermatologista',done:false,p:'media',due:'2026-04-20'},
-  ]},
-  {id:'f5',title:'HelpMed',color:'#378ADD',grupo:'trabalho',open:false,tasks:[
+  ],
+  f5:[
     {id:'t20',text:'Saques',done:true,p:'alta'},
     {id:'t21',text:'Entregar os APCs',done:false,p:'alta',due:'2026-04-10'},
     {id:'t22',text:'Catálogo cab e pescoço',done:false,p:'media'},
@@ -275,25 +355,25 @@ const defaultData=[
     {id:'t24',text:'Lista médicos',done:false,p:'media'},
     {id:'t25',text:'Roteiro e agendamento',done:false,p:'alta',due:'2026-04-12'},
     {id:'t26',text:'Enviar e-mail sobre Salomão',done:true,p:'alta'},
-  ]},
-  {id:'f1',title:'Inventário Sahara',color:'#7F77DD',grupo:'familia',open:false,tasks:[
+  ],
+  f1:[
     {id:'t1',text:'Providenciar documentação — cartório',done:true,p:'alta'},
     {id:'t2',text:'Acompanhar outra lista',done:true,p:'media'},
-  ]},
-  {id:'f7',title:'Rotina & hábitos',color:'#D4537E',grupo:'pessoal',open:false,tasks:[
+  ],
+  f7:[
     {id:'t31',text:'Quarta-feira — Culto',done:false,p:'alta',note:'Toda semana'},
     {id:'t32',text:'Jogar videogame',done:false,p:'baixa',due:'2026-05-18'},
     {id:'t33',text:'Ler todo dia 1h',done:false,p:'media',note:'Hábito diário'},
     {id:'t34',text:'Arrumar Note para Chrome OS (Manu)',done:false,p:'media'},
-  ]},
-  {id:'f2',title:'Finanças pessoais',color:'#1D9E75',grupo:'financeiro',open:false,tasks:[
+  ],
+  f2:[
     {id:'t3',text:'Ajustar cartões de crédito',done:false,p:'alta',due:'2026-04-20'},
     {id:'t4',text:'Organizar finanças pessoais',done:false,p:'alta',due:'2026-04-20'},
     {id:'t5',text:'Organizar finanças da empresa',done:false,p:'media',due:'2026-04-30'},
     {id:'t6',text:'Organizar finanças da casa',done:false,p:'media',due:'2026-04-30'},
     {id:'t7',text:'Organizar compras da casa',done:false,p:'baixa'},
-  ]},
-  {id:'f3',title:'Casa & reformas',color:'#D85A30',grupo:'infra',open:false,tasks:[
+  ],
+  f3:[
     {id:'t8',text:'Arrumar escritório — bagunça',done:false,p:'media'},
     {id:'t9',text:'Arrumar escritório — organização',done:false,p:'media'},
     {id:'t10',text:'Espelho redondo — pintar',done:false,p:'baixa'},
@@ -303,44 +383,63 @@ const defaultData=[
     {id:'t14',text:'Espelho banheiro',done:true,p:'alta'},
     {id:'t15',text:'Luzes bolinha',done:true,p:'media'},
     {id:'t16',text:'Mão francesa escadas',done:true,p:'alta'},
-  ]},
-  {id:'f4',title:'Vendas',color:'#BA7517',grupo:'infra',open:false,tasks:[
+  ],
+  f4:[
     {id:'t17',text:'Geladeira — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
     {id:'t18',text:'Máquina de lavar — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
     {id:'t19',text:'Fogão — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},
-  ]},
-  {id:'f6',title:'Carro & documentos',color:'#639922',grupo:'infra',open:false,tasks:[
+  ],
+  f6:[
     {id:'t27',text:'Instalar tag — encontrar tag',done:true,p:'alta'},
     {id:'t28',text:'Instalar tag — alterar placa',done:true,p:'alta'},
     {id:'t29',text:'App Porto apólice',done:true,p:'media'},
     {id:'t30',text:'IR do AP Eurus',done:true,p:'alta'},
-  ]},
-];
+  ],
+};
 
-let data=S.get('mv_tasks')||defaultData;
-let pesoLog=S.get('mv_peso')||[];
-let activeGrupo=S.get('mv_grupo')||'todas';
-let activeFilter='all';
-let sortByDate=false;
-let activeView='dash';
-let editingTask=null;
+// ── STATE ─────────────────────────────────────────────────
+let grupos = S.get('mv_grupos') || GRUPOS_DEFAULT;
+let frentes = S.get('mv_frentes') || FRENTES_DEFAULT;
+let tasks = S.get('mv_tasks') || TASKS_DEFAULT;
+let pesoLog = S.get('mv_peso') || [];
+let corpoData = S.get('mv_corpo') || {altura:''};
+let gorduraLog = S.get('mv_gordura') || [];
+let metaPeso = S.get('mv_meta') || {kg:10, dataInicio:'2026-04-09', dataFim:'2026-05-09'};
+let activeGrupo = S.get('mv_grupo') || 'todas';
+let activeFilter = 'all';
+let sortByDate = false;
+let activeView = 'dash';
+let editingTask = null;
+let modalMode = null;
 
-const save=()=>S.set('mv_tasks',data);
+const saveGrupos=()=>S.set('mv_grupos',grupos);
+const saveFrente=()=>S.set('mv_frentes',frentes);
+const saveTasks=()=>S.set('mv_tasks',tasks);
 const savePeso=()=>S.set('mv_peso',pesoLog);
+const saveCorpo=()=>S.set('mv_corpo',corpoData);
+const saveGordura=()=>S.set('mv_gordura',gorduraLog);
+const saveMeta=()=>S.set('mv_meta',metaPeso);
 const uid=()=>Math.random().toString(36).slice(2,9);
+
+// ── UTILS ─────────────────────────────────────────────────
 const todayD=new Date();todayD.setHours(0,0,0,0);
 const daysFrom=str=>{if(!str)return null;const d=new Date(str);d.setHours(0,0,0,0);return Math.round((d-todayD)/86400000)};
 const fmtDate=str=>{if(!str)return'';const d=new Date(str);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})};
+const pOrd={alta:0,media:1,baixa:2};
+const pColors={alta:'#E24B4A',media:'#EF9F27',baixa:'#1D9E75'};
 const pCls={alta:'p1',media:'p2',baixa:'p3'};
 const pLbl={alta:'Alta',media:'Média',baixa:'Baixa'};
-const pOrd={alta:0,media:1,baixa:2};
 
-function allTasks(){
+function allTasksFlat(){
   const rows=[];
-  data.forEach(f=>f.tasks.forEach(t=>rows.push({...t,fid:f.id,ftitle:f.title,fcolor:f.color,fgrupo:f.grupo})));
+  frentes.forEach(f=>{
+    const g=grupos.find(g=>g.id===f.grupo)||{label:f.grupo,icon:''};
+    (tasks[f.id]||[]).forEach(t=>rows.push({...t,fid:f.id,ftitle:f.title,fcolor:f.color,fgrupo:f.grupo,fgLabel:g.label}));
+  });
   return rows;
 }
 
+// ── VIEW ──────────────────────────────────────────────────
 function setView(v,btn){
   activeView=v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -348,22 +447,46 @@ function setView(v,btn){
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(v==='plan'){renderPlanFiltros();renderPlan();}
-  if(v==='peso')renderPesoFull();
+  if(v==='peso')renderCorpoFull();
 }
 
+// ── METRICS ───────────────────────────────────────────────
 function renderMetrics(){
-  let total=0,done=0,urgent=0,soon=0;
-  allTasks().forEach(t=>{
+  const all=allTasksFlat();
+  let total=0,done=0,urgent=0,soon=0,late=0;
+  all.forEach(t=>{
     total++;if(t.done)done++;
     if(!t.done&&t.p==='alta')urgent++;
-    const d=daysFrom(t.due);if(!t.done&&d!==null&&d<=7)soon++;
+    const d=daysFrom(t.due);
+    if(!t.done&&d!==null&&d<0)late++;
+    if(!t.done&&d!==null&&d>=0&&d<=7)soon++;
   });
   const pct=total?Math.round(done/total*100):0;
   document.getElementById('metrics').innerHTML=`
-    <div class="mc"><div class="mc-val" style="color:var(--green)">${done}</div><div class="mc-label">Feitas</div><div class="mc-sub" style="color:var(--green)">${pct}%</div></div>
-    <div class="mc"><div class="mc-val" style="color:var(--orange)">${total-done}</div><div class="mc-label">Pendentes</div><div class="mc-sub" style="color:var(--red-text)">${urgent} urgentes</div></div>
-    <div class="mc"><div class="mc-val" style="color:var(--red)">${soon}</div><div class="mc-label">Esta semana</div><div class="mc-sub" style="color:var(--text2)">${data.length} frentes</div></div>
-    <div class="mc"><div class="mc-val">${total}</div><div class="mc-label">Total</div><div class="mc-sub" style="color:var(--text2)">${pct}% ok</div></div>`;
+    <div class="mc" onclick="setFilterMc('done')" id="mc-done"><div class="mc-val" style="color:var(--green)">${done}</div><div class="mc-label">Feitas</div><div class="mc-sub" style="color:var(--green)">${pct}%</div></div>
+    <div class="mc" onclick="setFilterMc('pending')" id="mc-pending"><div class="mc-val" style="color:var(--orange)">${total-done}</div><div class="mc-label">Pendentes</div><div class="mc-sub" style="color:var(--text2)">${urgent} urgentes</div></div>
+    <div class="mc" onclick="setFilterMc('late')" id="mc-late"><div class="mc-val" style="color:#E24B4A">${late}</div><div class="mc-label">Atrasadas</div><div class="mc-sub" style="color:#E24B4A">${late>0?'Atenção!':'-'}</div></div>
+    <div class="mc" onclick="setFilterMc('soon')" id="mc-soon"><div class="mc-val" style="color:var(--red)">${soon}</div><div class="mc-label">Esta semana</div><div class="mc-sub" style="color:var(--text2)">${total} total</div></div>`;
+}
+
+function setFilterMc(f){
+  const map={done:'fb-done',pending:'fb-pending',late:'fb-late',soon:'fb-all',alta:'fb-alta'};
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-red'));
+  const btn=document.getElementById(map[f]||'fb-all');
+  if(btn){if(f==='late')btn.classList.add('on-red');else btn.classList.add('on');}
+  activeFilter=f==='soon'?'all':f;
+  renderDash();
+}
+
+// ── PESO CARD (dashboard) ─────────────────────────────────
+function pesoStats(){
+  const first=pesoLog.length?pesoLog[0].val:null;
+  const last=pesoLog.length?pesoLog[pesoLog.length-1].val:null;
+  const diff=(first&&last)?+(last-first).toFixed(1):null;
+  const metaKg=parseFloat(metaPeso.kg)||10;
+  const pct=diff!==null?Math.min(100,Math.max(0,Math.round(Math.abs(diff)/metaKg*100))):0;
+  const diasRestantes=metaPeso.dataFim?daysFrom(metaPeso.dataFim):null;
+  return{first,last,diff,pct,metaKg,diasRestantes};
 }
 
 function addPeso(inputId){
@@ -374,19 +497,12 @@ function addPeso(inputId){
   const idx=pesoLog.findIndex(p=>p.date===today);
   if(idx>=0)pesoLog[idx].val=v;else pesoLog.push({date:today,val:v});
   inp.value='';savePeso();renderPesoCard();
-  if(activeView==='peso')renderPesoFull();
-}
-
-function pesoStats(){
-  const first=pesoLog.length?pesoLog[0].val:null;
-  const last=pesoLog.length?pesoLog[pesoLog.length-1].val:null;
-  const diff=(first&&last)?+(last-first).toFixed(1):null;
-  const pct=diff!==null?Math.min(100,Math.max(0,Math.round(Math.abs(diff)/10*100))):0;
-  return{first,last,diff,pct};
+  if(activeView==='peso')renderCorpoFull();
 }
 
 function renderPesoCard(){
-  const{first,last,diff,pct}=pesoStats();
+  const{first,last,diff,pct,metaKg,diasRestantes}=pesoStats();
+  const metaFimFmt=metaPeso.dataFim?new Date(metaPeso.dataFim).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'—';
   const logHtml=pesoLog.slice().reverse().slice(0,8).map((p,i,arr)=>{
     const prev=arr[i+1];let dh='';
     if(prev){const d=+(p.val-prev.val).toFixed(1);dh=`<div class="pe-diff ${d<=0?'c-dn':'c-up'}">${d<=0?'▼':'▲'}${Math.abs(d)}</div>`;}
@@ -394,86 +510,237 @@ function renderPesoCard(){
   }).join('');
   document.getElementById('peso-card').innerHTML=`<div class="card">
     <div class="card-title">⚖️ Tracker de peso</div>
-    <div class="peso-chips">
+    <div class="chips">
       <span class="chip chip-b">Atual: ${last?last+' kg':'—'}</span>
       <span class="chip chip-o">${diff!==null?(diff<=0?'Perda':'Ganho')+': '+Math.abs(diff)+' kg':'Perda: —'}</span>
-      <span class="chip chip-g">Meta: −10 kg até 9/mai</span>
+      <span class="chip chip-g">Meta: −${metaKg} kg até ${metaFimFmt}</span>
+      ${diasRestantes!==null?`<span class="chip chip-r">${diasRestantes>=0?diasRestantes+' dias':'Prazo encerrado'}</span>`:''}
     </div>
     <div class="row"><input class="inp" type="number" id="pinput" placeholder="Peso hoje (ex: 92.5)" step="0.1" min="40" max="300" inputmode="decimal"/><button class="btn btn-sm" onclick="addPeso('pinput')">Registrar</button></div>
-    ${pesoLog.length?`<div class="peso-log">${logHtml}</div><div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>`:'<div style="font-size:12px;color:var(--text2);margin-top:8px">Nenhum registro ainda. Pese-se toda manhã!</div>'}
+    ${pesoLog.length?`<div class="peso-log">${logHtml}</div><div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:'<div style="font-size:12px;color:var(--text2);margin-top:8px">Nenhum registro ainda. Pese-se toda manhã!</div>'}
   </div>`;
 }
 
-function renderPesoFull(){
-  const{first,last,diff,pct}=pesoStats();
-  const rows=pesoLog.slice().reverse().map((p,i,arr)=>{
+// ── MEU CORPO (página completa) ───────────────────────────
+function calcIMC(peso,altura){
+  if(!peso||!altura)return null;
+  const h=parseFloat(altura)/100;
+  return+(peso/(h*h)).toFixed(1);
+}
+function imcClass(imc){
+  if(!imc)return{label:'—',color:'var(--text2)',bg:'var(--surface2)'};
+  if(imc<18.5)return{label:'Abaixo do peso',color:'#185FA5',bg:'#E6F1FB'};
+  if(imc<25)return{label:'Peso normal ✓',color:'#085041',bg:'#E1F5EE'};
+  if(imc<30)return{label:'Sobrepeso',color:'#854F0B',bg:'#FAEEDA'};
+  if(imc<35)return{label:'Obesidade grau I',color:'#993C1D',bg:'#FAECE7'};
+  return{label:'Obesidade grau II+',color:'#7B1010',bg:'#FFCCCC'};
+}
+
+function addGordura(inputId){
+  const inp=document.getElementById(inputId);
+  const v=parseFloat(inp.value);
+  if(isNaN(v)||v<1||v>70){alert('Digite um percentual válido (ex: 28.5)');return;}
+  const today=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const idx=gorduraLog.findIndex(p=>p.date===today);
+  if(idx>=0)gorduraLog[idx].val=v;else gorduraLog.push({date:today,val:v});
+  inp.value='';saveGordura();renderCorpoFull();
+}
+
+function deleteGordura(date){
+  if(!confirm('Remover registro de gordura de '+date+'?'))return;
+  gorduraLog=gorduraLog.filter(p=>p.date!==date);saveGordura();renderCorpoFull();
+}
+
+function saveMeta2(){
+  metaPeso.kg=document.getElementById('meta-kg').value||10;
+  metaPeso.dataFim=document.getElementById('meta-data').value||'';
+  saveMeta();renderPesoCard();renderCorpoFull();
+}
+
+function renderCorpoFull(){
+  const{first,last,diff,pct,metaKg,diasRestantes}=pesoStats();
+  const metaFimFmt=metaPeso.dataFim?new Date(metaPeso.dataFim).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'—';
+  const imc=calcIMC(last,corpoData.altura);
+  const imcInfo=imcClass(imc);
+
+  // gordura atual e massa magra calculada
+  const lastGordura=gorduraLog.length?gorduraLog[gorduraLog.length-1].val:null;
+  const massaMagraKg=(last&&lastGordura)?+(last*(1-lastGordura/100)).toFixed(1):null;
+  const gorduraKg=(last&&lastGordura)?+(last*lastGordura/100).toFixed(1):null;
+
+  // tabela peso
+  const pesoRows=pesoLog.slice().reverse().map((p,i,arr)=>{
     const prev=arr[i+1];let dTxt='—',dColor='var(--text2)';
     if(prev){const d=+(p.val-prev.val).toFixed(1);dTxt=(d<=0?'▼ ':'▲ ')+Math.abs(d);dColor=d<=0?'var(--green)':'#E24B4A';}
-    return `<tr><td>${p.date}</td><td><strong>${p.val} kg</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td>
-      <td><button class="btn btn-red btn-sm" onclick="deletePeso('${p.date}')">✕</button></td></tr>`;
+    return `<tr><td>${p.date}</td><td><strong>${p.val} kg</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td><td style="color:var(--text2)">${calcIMC(p.val,corpoData.altura)||'—'}</td>
+      <td><button class="btn btn-red btn-xs" onclick="deletePeso('${p.date}')">✕</button></td></tr>`;
   }).join('');
-  document.getElementById('peso-full').innerHTML=`
+
+  // tabela gordura
+  const gorduraRows=gorduraLog.slice().reverse().map((p,i,arr)=>{
+    const prev=arr[i+1];let dTxt='—',dColor='var(--text2)';
+    if(prev){const d=+(p.val-prev.val).toFixed(1);dTxt=(d<=0?'▼ ':'▲ ')+Math.abs(d)+'%';dColor=d<=0?'var(--green)':'#E24B4A';}
+    const pesoRef=pesoLog.length?pesoLog[pesoLog.length-1].val:null;
+    const mmKg=pesoRef?+(pesoRef*(1-p.val/100)).toFixed(1):'—';
+    return `<tr><td>${p.date}</td><td><strong>${p.val}%</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td><td style="color:var(--text2)">${mmKg} kg</td>
+      <td><button class="btn btn-red btn-xs" onclick="deleteGordura('${p.date}')">✕</button></td></tr>`;
+  }).join('');
+
+  document.getElementById('corpo-full').innerHTML=`
+    <div class="card">
+      <div class="card-title">💪 Meu corpo</div>
+      <div class="chips">
+        <span class="chip chip-b">Peso: ${last?last+' kg':'—'}</span>
+        <span class="chip chip-o">${diff!==null?(diff<=0?'Perda':'Ganho')+': '+Math.abs(diff)+' kg':'—'}</span>
+        <span class="chip chip-g">Meta: −${metaKg} kg até ${metaFimFmt}</span>
+        ${diasRestantes!==null?`<span class="chip chip-r">${diasRestantes>=0?diasRestantes+' dias restantes':'Prazo encerrado'}</span>`:''}
+      </div>
+
+      <div class="section-divider">Editar meta de peso</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">
+        <div class="field" style="margin:0"><label>Perda (kg)</label>
+          <input class="inp" type="number" id="meta-kg" value="${metaPeso.kg||10}" min="1" max="100" step="0.5" inputmode="decimal"/>
+        </div>
+        <div class="field" style="margin:0"><label>Prazo final</label>
+          <input class="inp" type="date" id="meta-data" value="${metaPeso.dataFim||''}"/>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn" style="width:100%" onclick="saveMeta2()">Salvar meta</button>
+        </div>
+      </div>
+
+      <div class="section-divider">Altura (dado fixo)</div>
+      <div class="row" style="margin-bottom:4px">
+        <input class="inp" type="number" id="inp-altura" value="${corpoData.altura||''}" placeholder="Altura em cm (ex: 178)" inputmode="numeric"/>
+        <button class="btn btn-sm btn-outline" onclick="saveCorpoData()">Salvar</button>
+      </div>
+
+      <div class="section-divider">Métricas atuais</div>
+      <div class="grid2">
+        <div class="stat-box">
+          <div class="stat-val">${imc||'—'}</div>
+          <div class="stat-label">IMC</div>
+          <div class="stat-sub" style="color:${imcInfo.color}">${imcInfo.label}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">${lastGordura?lastGordura+'%':'—'}</div>
+          <div class="stat-label">Gordura corporal</div>
+          <div class="stat-sub" style="color:var(--text2)">${gorduraKg?gorduraKg+' kg':'—'}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">${massaMagraKg?massaMagraKg+' kg':'—'}</div>
+          <div class="stat-label">Massa magra</div>
+          <div class="stat-sub" style="color:var(--green)">${lastGordura?(100-lastGordura).toFixed(1)+'%':'calculado auto'}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">${pct}%</div>
+          <div class="stat-label">Meta concluída</div>
+          <div class="stat-sub" style="color:var(--text2)">−${metaKg} kg</div>
+        </div>
+      </div>
+
+      ${imc?`<div class="imc-box" style="background:${imcInfo.bg};margin-top:10px">
+        <div class="imc-val" style="color:${imcInfo.color}">${imc}</div>
+        <div class="imc-label" style="color:${imcInfo.color}">${imcInfo.label}</div>
+        <div class="imc-range">Saudável: 18.5 – 24.9 · Sua altura: ${corpoData.altura?corpoData.altura+' cm':'não informada'}</div>
+      </div>`:''}
+
+      ${pesoLog.length?`<div class="bar-wrap" style="margin-top:12px"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta (−${metaKg} kg)</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:''}
+    </div>
+
     <div class="card">
       <div class="card-title">⚖️ Registrar peso</div>
-      <div class="peso-chips">
-        <span class="chip chip-b">Atual: ${last?last+' kg':'—'}</span>
-        <span class="chip chip-o">${diff!==null?(diff<=0?'Perda':'Ganho')+': '+Math.abs(diff)+' kg':'—'}</span>
-        <span class="chip chip-g">Meta: −10 kg até 9/mai</span>
+      <div class="row">
+        <input class="inp" type="number" id="pinput2" placeholder="Peso hoje (kg, ex: 92.5)" step="0.1" min="40" max="300" inputmode="decimal"/>
+        <button class="btn" onclick="addPeso('pinput2')">Registrar</button>
       </div>
-      <div class="row"><input class="inp" type="number" id="pinput2" placeholder="Peso hoje (ex: 92.5)" step="0.1" min="40" max="300" inputmode="decimal"/><button class="btn" onclick="addPeso('pinput2')">Registrar</button></div>
-      ${pesoLog.length?`<div class="bar-wrap" style="margin-top:12px"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta (−10 kg)</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>`:''}
+      ${pesoLog.length?`<div style="margin-top:12px"><div class="table-wrap" style="min-width:0"><table style="min-width:0">
+        <thead><tr><th>Data</th><th>Peso</th><th>Variação</th><th>IMC</th><th></th></tr></thead>
+        <tbody>${pesoRows}</tbody>
+      </table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}
     </div>
-    <div class="card" style="margin-top:12px">
-      <div class="card-title">📅 Histórico completo</div>
-      ${pesoLog.length?`<div class="table-wrap" style="min-width:0"><table style="min-width:0"><thead><tr><th>Data</th><th>Peso</th><th>Variação</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div style="font-size:13px;color:var(--text2)">Nenhum registro ainda.</div>'}
+
+    <div class="card">
+      <div class="card-title">🔥 Registrar % gordura corporal</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Registre sempre que fizer uma avaliação (bioimpedância, dobras cutâneas, etc.)</div>
+      <div class="row">
+        <input class="inp" type="number" id="ginput" placeholder="% gordura (ex: 28.5)" step="0.1" min="1" max="70" inputmode="decimal"/>
+        <button class="btn" onclick="addGordura('ginput')">Registrar</button>
+      </div>
+      ${gorduraLog.length?`<div style="margin-top:12px"><div class="table-wrap" style="min-width:0"><table style="min-width:0">
+        <thead><tr><th>Data</th><th>Gordura</th><th>Variação</th><th>Massa magra</th><th></th></tr></thead>
+        <tbody>${gorduraRows}</tbody>
+      </table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda. A massa magra é calculada automaticamente.</div>'}
     </div>`;
+}
+}
+
+function saveCorpoData(){
+  corpoData.altura=document.getElementById('inp-altura').value;
+  saveCorpo();renderCorpoFull();
 }
 
 function deletePeso(date){
   if(!confirm('Remover registro de '+date+'?'))return;
-  pesoLog=pesoLog.filter(p=>p.date!==date);savePeso();renderPesoFull();renderPesoCard();
+  pesoLog=pesoLog.filter(p=>p.date!==date);savePeso();renderCorpoFull();renderPesoCard();
 }
 
+// ── TABS ──────────────────────────────────────────────────
 function renderTabs(){
-  document.getElementById('tabs').innerHTML=grupos.map(g=>{
+  // Only show grupos that have tasks OR is "todas"
+  const gruposComTarefas=grupos.filter(g=>{
+    if(g.id==='todas')return true;
+    return frentes.filter(f=>f.grupo===g.id).some(f=>(tasks[f.id]||[]).length>0);
+  });
+  document.getElementById('tabs').innerHTML=gruposComTarefas.map(g=>{
     const cnt=g.id==='todas'
-      ?allTasks().filter(t=>!t.done).length
-      :data.filter(f=>f.grupo===g.id).reduce((a,f)=>a+f.tasks.filter(t=>!t.done).length,0);
+      ?allTasksFlat().filter(t=>!t.done).length
+      :frentes.filter(f=>f.grupo===g.id).reduce((a,f)=>a+(tasks[f.id]||[]).filter(t=>!t.done).length,0);
     return `<button class="tab ${g.id===activeGrupo?'active':''}" onclick="setTab('${g.id}')">${g.icon} ${g.label}${cnt>0?`<span class="tab-cnt">${cnt}</span>`:''}</button>`;
   }).join('');
 }
 
 function setTab(gid){activeGrupo=gid;S.set('mv_grupo',gid);renderTabs();renderDash();}
-function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderDash();}
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-red'));
+  if(f==='late')btn.classList.add('on-red');else btn.classList.add('on');
+  renderDash();
+}
 function toggleSort(){sortByDate=!sortByDate;document.getElementById('sort-btn').classList.toggle('on',sortByDate);renderDash();}
 
 function taskVis(t){
+  const d=daysFrom(t.due);
   if(activeFilter==='pending')return !t.done;
   if(activeFilter==='done')return t.done;
   if(activeFilter==='alta')return t.p==='alta'&&!t.done;
+  if(activeFilter==='late')return !t.done&&d!==null&&d<0;
   return true;
 }
 
+// ── DASH ──────────────────────────────────────────────────
 function toggleTask(fid,tid){
-  const f=data.find(f=>f.id===fid);const t=f.tasks.find(t=>t.id===tid);t.done=!t.done;
-  save();renderMetrics();renderTabs();renderDash();
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
+  t.done=!t.done;saveTasks();renderMetrics();renderTabs();renderDash();
 }
-function toggleFrente(fid){const f=data.find(f=>f.id===fid);f.open=!f.open;save();renderDash();}
+function toggleFrente(fid){
+  const f=frentes.find(f=>f.id===fid);if(!f)return;f.open=!f.open;saveFrente();renderDash();
+}
 
-function taskRowHtml(fid,t,showFrente){
+function taskRowHtml(fid,t,showGrupo){
   const d=daysFrom(t.due);
   let dcls='dbadge',dtxt='';
   if(t.due){dtxt=fmtDate(t.due);if(d<0){dcls+=' late';dtxt='Atrasada';}else if(d===0){dcls+=' soon';dtxt='Hoje';}else if(d===1){dcls+=' soon';dtxt='Amanhã';}else if(d<=7)dcls+=' soon';}
-  const frente=data.find(f=>f.id===fid);
+  const fr=frentes.find(f=>f.id===fid);
   return `<div class="task" onclick="toggleTask('${fid}','${t.id}')">
     <div class="tcheck ${t.done?'dn':''}"></div>
     <div class="tbody">
       <div class="ttext ${t.done?'dn':''}">${t.text}</div>
       ${t.note?`<div class="tnote">${t.note}</div>`:''}
       <div class="tmeta">
-        ${t.p?`<span class="badge ${pCls[t.p]}">${pLbl[t.p]}</span>`:''}
+        <span style="width:8px;height:8px;border-radius:50%;background:${pColors[t.p]||'#888'};display:inline-block;flex-shrink:0"></span>
         ${dtxt?`<span class="${dcls}">${dtxt}</span>`:''}
-        ${showFrente&&frente?`<span style="font-size:10px;color:${frente.color};font-weight:600">${frente.title}</span>`:''}
+        ${showGrupo&&fr?`<span style="font-size:10px;color:${fr.color};font-weight:600">${fr.title}</span>`:''}
       </div>
     </div>
   </div>`;
@@ -482,143 +749,236 @@ function taskRowHtml(fid,t,showFrente){
 function renderDash(){
   const el=document.getElementById('frentes-main');
   const isTodas=activeGrupo==='todas';
+  const allFlat=allTasksFlat();
 
   if(isTodas&&sortByDate){
-    let tasks=allTasks().filter(t=>taskVis(t));
-    tasks.sort((a,b)=>{if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return new Date(a.due)-new Date(b.due);});
-    if(!tasks.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
-    el.innerHTML=`<div class="frente"><div class="tasks op">${tasks.map(t=>taskRowHtml(t.fid,t,true)).join('')}</div></div>`;
+    let ts=allFlat.filter(t=>taskVis(t));
+    ts.sort((a,b)=>{if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return new Date(a.due)-new Date(b.due);});
+    if(!ts.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
+    el.innerHTML=`<div class="frente"><div class="tasks op">${ts.map(t=>taskRowHtml(t.fid,t,true)).join('')}</div></div>`;
     return;
   }
 
-  let frentes=isTodas?data:data.filter(f=>f.grupo===activeGrupo);
-  frentes=frentes.filter(f=>f.tasks.some(t=>taskVis(t)));
-  if(!frentes.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
+  let frentesShow=isTodas?frentes:frentes.filter(f=>f.grupo===activeGrupo);
+  frentesShow=frentesShow.filter(f=>(tasks[f.id]||[]).some(t=>taskVis(t)));
+  if(!frentesShow.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
 
-  el.innerHTML=frentes.map(frente=>{
-    let vt=frente.tasks.filter(t=>taskVis(t));
+  el.innerHTML=frentesShow.map(frente=>{
+    const g=grupos.find(g=>g.id===frente.grupo)||{label:''};
+    let vt=(tasks[frente.id]||[]).filter(t=>taskVis(t));
     if(sortByDate)vt=[...vt].sort((a,b)=>{if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return new Date(a.due)-new Date(b.due);});
-    const tot=frente.tasks.length,dn=frente.tasks.filter(t=>t.done).length;
+    const tot=(tasks[frente.id]||[]).length,dn=(tasks[frente.id]||[]).filter(t=>t.done).length;
     const pct=tot?Math.round(dn/tot*100):0;
     return `<div class="frente">
       <div class="fh" onclick="toggleFrente('${frente.id}')">
         <div class="fdot" style="background:${frente.color}"></div>
-        <div class="ftitle">${frente.title}</div>
-        <span class="fpct">${pct}% · ${dn}/${tot}</span>
+        <div>
+          <div class="ftitle">${frente.title}</div>
+          ${isTodas?`<div class="fsubtitle">${g.label}</div>`:''}
+        </div>
+        <span class="fpct" style="margin-left:auto">${pct}% · ${dn}/${tot}</span>
         <span class="chev ${frente.open?'op':''}">▶</span>
       </div>
       <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${frente.color}"></div></div>
-      <div class="tasks ${frente.open?'op':''}">${vt.map(t=>taskRowHtml(frente.id,t,isTodas)).join('')}</div>
+      <div class="tasks ${frente.open?'op':''}">${vt.map(t=>taskRowHtml(frente.id,t,false)).join('')}</div>
     </div>`;
   }).join('');
 }
 
+// ── PLANILHA ──────────────────────────────────────────────
 function renderPlanFiltros(){
-  document.getElementById('plan-fg').innerHTML='<option value="">Todas as frentes</option>'+data.map(f=>`<option value="${f.id}">${f.title}</option>`).join('');
+  document.getElementById('plan-fg').innerHTML='<option value="">Todas</option>'+
+    frentes.map(f=>{
+      const g=grupos.find(g=>g.id===f.grupo)||{label:''};
+      return `<option value="${f.id}">${g.label} — ${f.title}</option>`;
+    }).join('');
 }
 
 function renderPlan(){
   const fid=document.getElementById('plan-fg').value;
   const sort=document.getElementById('plan-sort').value;
-  let rows=allTasks();
+  let rows=allTasksFlat();
   if(fid)rows=rows.filter(r=>r.fid===fid);
   rows=[...rows].sort((a,b)=>{
     if(sort==='due'){if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return new Date(a.due)-new Date(b.due);}
     if(sort==='p')return pOrd[a.p]-pOrd[b.p];
     if(sort==='status')return a.done-b.done;
-    return a.ftitle.localeCompare(b.ftitle);
+    return(a.fgLabel+a.ftitle).localeCompare(b.fgLabel+b.ftitle);
   });
   document.getElementById('plan-body').innerHTML=rows.map(t=>{
     const d=daysFrom(t.due);
     let dStyle='';
     if(t.due&&d<0)dStyle='color:var(--red-text);font-weight:700';
-    else if(t.due&&d<=3)dStyle='color:var(--orange-text);font-weight:700';
+    else if(t.due&&d!==null&&d<=3)dStyle='color:var(--orange-text);font-weight:700';
     return `<tr>
-      <td style="text-align:center"><input type="checkbox" ${t.done?'checked':''} onchange="planToggle('${t.fid}','${t.id}',this.checked)" style="width:16px;height:16px;cursor:pointer"/></td>
+      <td style="text-align:center"><input type="checkbox" ${t.done?'checked':''} onchange="planToggle('${t.fid}','${t.id}',this.checked)" style="width:15px;height:15px;cursor:pointer"/></td>
+      <td><span style="font-size:10px;color:var(--text2);font-weight:600">${t.fgLabel}</span></td>
       <td><span class="tag" style="background:${t.fcolor}22;color:${t.fcolor}">${t.ftitle}</span></td>
-      <td><input type="text" value="${t.text.replace(/"/g,'&quot;')}" onblur="planEdit('${t.fid}','${t.id}','text',this.value)" style="min-width:160px"/></td>
-      <td><select onchange="planEdit('${t.fid}','${t.id}','p',this.value)">
-        <option value="alta" ${t.p==='alta'?'selected':''}>🔴 Alta</option>
-        <option value="media" ${t.p==='media'?'selected':''}>🟡 Média</option>
-        <option value="baixa" ${t.p==='baixa'?'selected':''}>🟢 Baixa</option>
-      </select></td>
+      <td><input type="text" value="${(t.text||'').replace(/"/g,'&quot;')}" onblur="planEdit('${t.fid}','${t.id}','text',this.value)" style="min-width:140px"/></td>
+      <td style="text-align:center">
+        <span class="pdot" style="background:${pColors[t.p]||'#888'}" title="${pLbl[t.p]||''}"></span>
+      </td>
       <td style="${dStyle}"><input type="date" value="${t.due||''}" onchange="planEdit('${t.fid}','${t.id}','due',this.value)"/></td>
-      <td><input type="text" value="${(t.note||'').replace(/"/g,'&quot;')}" placeholder="—" onblur="planEdit('${t.fid}','${t.id}','note',this.value)" style="min-width:100px"/></td>
+      <td><input type="text" value="${(t.note||'').replace(/"/g,'&quot;')}" placeholder="—" onblur="planEdit('${t.fid}','${t.id}','note',this.value)" style="min-width:90px"/></td>
       <td><div class="action-btns">
-        <button class="btn btn-outline btn-sm" onclick="editTask('${t.fid}','${t.id}')">✏️</button>
-        <button class="btn btn-red btn-sm" onclick="deleteTask('${t.fid}','${t.id}')">✕</button>
+        <button class="btn btn-outline btn-xs" onclick="openEditTask('${t.fid}','${t.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="deleteTask('${t.fid}','${t.id}')">✕</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 
 function planToggle(fid,tid,checked){
-  data.find(f=>f.id===fid).tasks.find(t=>t.id===tid).done=checked;
-  save();renderMetrics();renderTabs();renderDash();
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t.done=checked;
+  saveTasks();renderMetrics();renderTabs();renderDash();
 }
 function planEdit(fid,tid,field,val){
-  data.find(f=>f.id===fid).tasks.find(t=>t.id===tid)[field]=val;
-  save();renderMetrics();renderTabs();renderDash();
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t[field]=val;
+  saveTasks();renderMetrics();renderTabs();renderDash();
 }
 function deleteTask(fid,tid){
   if(!confirm('Excluir esta tarefa?'))return;
-  const f=data.find(f=>f.id===fid);f.tasks=f.tasks.filter(t=>t.id!==tid);
-  save();renderMetrics();renderTabs();renderDash();renderPlan();
+  tasks[fid]=(tasks[fid]||[]).filter(t=>t.id!==tid);
+  saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();
 }
 
-function openModal(fid,tid){
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(mode,fid,tid){
+  modalMode=mode;
   editingTask=fid&&tid?{fid,tid}:null;
-  document.getElementById('modal-title').textContent=editingTask?'Editar tarefa':'Nova tarefa';
-  document.getElementById('m-frente').innerHTML=data.map(f=>`<option value="${f.id}">${f.title}</option>`).join('');
-  if(editingTask){
-    const f=data.find(f=>f.id===fid);const t=f.tasks.find(t=>t.id===tid);
-    document.getElementById('m-text').value=t.text||'';
-    document.getElementById('m-frente').value=fid;
-    document.getElementById('m-p').value=t.p||'media';
-    document.getElementById('m-due').value=t.due||'';
-    document.getElementById('m-note').value=t.note||'';
-  } else {
-    document.getElementById('m-text').value='';
-    document.getElementById('m-p').value='media';
-    document.getElementById('m-due').value='';
-    document.getElementById('m-note').value='';
-    const f=activeGrupo!=='todas'?data.find(f=>f.grupo===activeGrupo):null;
-    if(f)document.getElementById('m-frente').value=f.id;
+  const content=document.getElementById('modal-content');
+
+  if(mode==='task'){
+    const editing=editingTask?((tasks[fid]||[]).find(t=>t.id===tid)||{}):null;
+    const fOpts=frentes.map(f=>{
+      const g=grupos.find(g=>g.id===f.grupo)||{label:''};
+      return `<option value="${f.id}" ${editing&&fid===f.id?'selected':(!editing&&activeGrupo!=='todas'&&f.grupo===activeGrupo)?'selected':''}>${g.label} — ${f.title}</option>`;
+    }).join('');
+    content.innerHTML=`
+      <h3>${editing?'Editar tarefa':'Nova tarefa'}</h3>
+      <div class="field"><label>Tarefa *</label><input id="m-text" value="${editing?editing.text||'':''}" placeholder="Descrição da tarefa"/></div>
+      <div class="field"><label>Subgrupo (frente) *</label><select id="m-frente">${fOpts}</select></div>
+      <div class="field"><label>Prioridade</label>
+        <select id="m-p">
+          <option value="alta" ${editing&&editing.p==='alta'?'selected':''}>🔴 Alta (urgente)</option>
+          <option value="media" ${!editing||editing.p==='media'?'selected':''}>🟡 Média</option>
+          <option value="baixa" ${editing&&editing.p==='baixa'?'selected':''}>🟢 Baixa</option>
+        </select>
+      </div>
+      <div class="field"><label>Data de vencimento</label><input type="date" id="m-due" value="${editing?editing.due||'':''}"/></div>
+      <div class="field"><label>Nota / observação</label><input id="m-note" value="${editing?editing.note||'':''}" placeholder="Opcional"/></div>
+      <div class="modal-btns">
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn" onclick="saveTaskModal()">Salvar</button>
+      </div>`;
+    setTimeout(()=>document.getElementById('m-text').focus(),100);
   }
+
+  if(mode==='frente'){
+    renderFrenteModal(content);
+  }
+
   document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('m-text').focus(),100);
 }
 
-function editTask(fid,tid){openModal(fid,tid);}
-function closeModal(){document.getElementById('modal').classList.remove('open');editingTask=null;}
+function openEditTask(fid,tid){openModal('task',fid,tid);}
 
-function saveModal(){
-  const text=document.getElementById('m-text').value.trim();
+function renderFrenteModal(content){
+  const COLORS=['#1D9E75','#D85A30','#378ADD','#7F77DD','#D4537E','#BA7517','#639922','#085041','#E24B4A','#5DCAA5'];
+  const gruposEditaveis=grupos.filter(g=>g.id!=='todas');
+  content.innerHTML=`
+    <h3>⚙️ Gerenciar frentes</h3>
+    <div class="section-divider">Subgrupos existentes</div>
+    <div id="frente-list">
+      ${frentes.map(f=>{
+        const g=grupos.find(g=>g.id===f.grupo)||{label:''};
+        return `<div class="frente-item">
+          <div class="color-dot" style="background:${f.color}" onclick="cycleColor('${f.id}','${COLORS.join(',')}')"></div>
+          <span style="font-size:11px;color:var(--text2);width:60px;flex-shrink:0">${g.label}</span>
+          <span style="flex:1;font-size:13px">${f.title}</span>
+          <button class="btn btn-red btn-xs" onclick="deleteFrente('${f.id}')">✕</button>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="section-divider" style="margin-top:16px">Criar novo subgrupo</div>
+    <div class="field"><label>Nome do subgrupo</label><input id="new-frente-name" placeholder="Ex: Meditação"/></div>
+    <div class="field"><label>Grupo (frente maior)</label>
+      <select id="new-frente-grupo">
+        ${gruposEditaveis.map(g=>`<option value="${g.id}">${g.icon} ${g.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Cor</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0">
+        ${COLORS.map(c=>`<div onclick="selectColor('${c}')" style="width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent" id="coloropt-${c.slice(1)}" class="coloropt"></div>`).join('')}
+      </div>
+    </div>
+    <button class="btn" style="width:100%;margin-bottom:12px" onclick="addFrente()">+ Criar subgrupo</button>
+    <div class="section-divider">Grupos disponíveis</div>
+    <div style="font-size:12px;color:var(--text2);line-height:2">${gruposEditaveis.map(g=>`${g.icon} ${g.label}`).join(' · ')}</div>
+    <button class="btn btn-outline" style="width:100%;margin-top:12px" onclick="closeModal()">Fechar</button>`;
+  selectedColor=COLORS[0];
+  document.getElementById('coloropt-'+COLORS[0].slice(1)).style.borderColor='var(--text)';
+}
+
+let selectedColor='#1D9E75';
+function selectColor(c){
+  selectedColor=c;
+  document.querySelectorAll('.coloropt').forEach(el=>el.style.borderColor='transparent');
+  document.getElementById('coloropt-'+c.slice(1)).style.borderColor='var(--text)';
+}
+function cycleColor(fid,colorsStr){
+  const COLORS=colorsStr.split(',');
+  const f=frentes.find(f=>f.id===fid);if(!f)return;
+  const idx=COLORS.indexOf(f.color);
+  f.color=COLORS[(idx+1)%COLORS.length];
+  saveFrente();renderFrenteModal(document.getElementById('modal-content'));renderDash();
+}
+function addFrente(){
+  const name=(document.getElementById('new-frente-name').value||'').trim();
+  const grupo=document.getElementById('new-frente-grupo').value;
+  if(!name){alert('Digite o nome do subgrupo');return;}
+  const nf={id:'f'+uid(),title:name,color:selectedColor,grupo,open:false};
+  frentes.push(nf);tasks[nf.id]=[];
+  saveFrente();saveTasks();
+  renderFrenteModal(document.getElementById('modal-content'));
+  renderTabs();renderDash();
+}
+function deleteFrente(fid){
+  if(!confirm('Excluir este subgrupo e todas as suas tarefas?'))return;
+  frentes=frentes.filter(f=>f.id!==fid);delete tasks[fid];
+  saveFrente();saveTasks();
+  renderFrenteModal(document.getElementById('modal-content'));
+  renderMetrics();renderTabs();renderDash();
+}
+
+function saveTaskModal(){
+  const text=(document.getElementById('m-text').value||'').trim();
   if(!text){alert('Digite o nome da tarefa');return;}
   const fid=document.getElementById('m-frente').value;
   const p=document.getElementById('m-p').value;
   const due=document.getElementById('m-due').value||'';
-  const note=document.getElementById('m-note').value.trim();
+  const note=(document.getElementById('m-note').value||'').trim();
   if(editingTask){
     if(editingTask.fid!==fid){
-      const oldF=data.find(f=>f.id===editingTask.fid);
-      const t=oldF.tasks.find(t=>t.id===editingTask.tid);
-      oldF.tasks=oldF.tasks.filter(t=>t.id!==editingTask.tid);
-      t.text=text;t.p=p;t.due=due;t.note=note;
-      data.find(f=>f.id===fid).tasks.push(t);
+      const t=(tasks[editingTask.fid]||[]).find(t=>t.id===editingTask.tid);
+      tasks[editingTask.fid]=(tasks[editingTask.fid]||[]).filter(t=>t.id!==editingTask.tid);
+      if(t){t.text=text;t.p=p;t.due=due;t.note=note;if(!tasks[fid])tasks[fid]=[];tasks[fid].push(t);}
     } else {
-      const t=data.find(f=>f.id===editingTask.fid).tasks.find(t=>t.id===editingTask.tid);
-      t.text=text;t.p=p;t.due=due;t.note=note;
+      const t=(tasks[fid]||[]).find(t=>t.id===editingTask.tid);
+      if(t){t.text=text;t.p=p;t.due=due;t.note=note;}
     }
   } else {
-    data.find(f=>f.id===fid).tasks.push({id:uid(),text,done:false,p,due,note});
+    if(!tasks[fid])tasks[fid]=[];
+    tasks[fid].push({id:uid(),text,done:false,p,due,note});
   }
-  save();closeModal();renderMetrics();renderTabs();renderDash();
+  saveTasks();closeModal();renderMetrics();renderTabs();renderDash();
   if(activeView==='plan')renderPlan();
 }
 
+function closeModal(){document.getElementById('modal').classList.remove('open');editingTask=null;}
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
+// ── INIT ──────────────────────────────────────────────────
 document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 renderMetrics();renderPesoCard();renderTabs();renderDash();
 </script>
