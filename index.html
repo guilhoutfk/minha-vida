@@ -364,7 +364,7 @@ let frentes   = S.get('mv_frentes') || FRENTES_DEF;
 let tasks     = S.get('mv_tasks')   || TASKS_DEF;
 let pesoLog   = S.get('mv_peso')    || [];
 let gorduraLog= S.get('mv_gordura') || [];
-let corpoData = S.get('mv_corpo')   || {altura:''};
+let corpoData = S.get('mv_corpo')   || {altura:'', sexo:''};
 let metaPeso  = S.get('mv_meta')    || {kg:10, dataFim:'2026-05-09'};
 let activeGrupo  = S.get('mv_grupo') || 'todas';
 let activeFilter = 'all';
@@ -490,6 +490,7 @@ function saveMeta2(){
 function saveAlturaData(){
   const raw=(document.getElementById('inp-altura').value||'').replace(',','.');
   corpoData.altura=raw;
+  corpoData.sexo=document.getElementById('inp-sexo').value;
   saveCorpo();renderCorpoFull();
 }
 
@@ -526,13 +527,35 @@ function calcIMC(peso,altura){
   if(h<=0)return null;
   return+(peso/(h*h)).toFixed(1);
 }
-function imcClass(imc){
+function imcClass(imc, sexo){
   if(!imc)return{label:'—',color:'var(--text2)',bg:'var(--surface2)'};
+  // Faixa normal: OMS usa 18.5-24.9 para ambos; algumas referências brasileiras
+  // usam até 25 para homens e até 24 para mulheres — aplicamos essa distinção
+  const limNormal = sexo==='M' ? 25 : 24;
   if(imc<18.5)return{label:'Abaixo do peso',color:'#185FA5',bg:'#E6F1FB'};
-  if(imc<25)return{label:'Peso normal ✓',color:'#085041',bg:'#E1F5EE'};
+  if(imc<limNormal)return{label:'Peso normal ✓',color:'#085041',bg:'#E1F5EE'};
   if(imc<30)return{label:'Sobrepeso',color:'#854F0B',bg:'#FAEEDA'};
   if(imc<35)return{label:'Obesidade grau I',color:'#993C1D',bg:'#FAECE7'};
-  return{label:'Obesidade grau II+',color:'#7B1010',bg:'#FFCCCC'};
+  if(imc<40)return{label:'Obesidade grau II',color:'#7B1010',bg:'#FFCCCC'};
+  return{label:'Obesidade grau III',color:'#5c0a0a',bg:'#FFB3B3'};
+}
+
+// Faixas de % gordura saudável por sexo (referência OMS / ACSM)
+function gorduraClass(pct, sexo){
+  if(pct==null)return null;
+  if(sexo==='M'){
+    if(pct<6) return{label:'Abaixo do mínimo',color:'#185FA5'};
+    if(pct<=13)return{label:'Atlético',color:'#085041'};
+    if(pct<=20)return{label:'Saudável ✓',color:'#1D9E75'};
+    if(pct<=25)return{label:'Aceitável',color:'#854F0B'};
+    return{label:'Excesso de gordura',color:'#993C1D'};
+  } else {
+    if(pct<14)return{label:'Abaixo do mínimo',color:'#185FA5'};
+    if(pct<=20)return{label:'Atlético',color:'#085041'};
+    if(pct<=28)return{label:'Saudável ✓',color:'#1D9E75'};
+    if(pct<=35)return{label:'Aceitável',color:'#854F0B'};
+    return{label:'Excesso de gordura',color:'#993C1D'};
+  }
 }
 
 // ── MEU CORPO ─────────────────────────────────────────────
@@ -540,9 +563,10 @@ function renderCorpoFull(){
   const{first,last,diff,pct,metaKg,diasRestantes}=pesoStats();
   const metaFimFmt=metaPeso.dataFim?fmtDateBR(metaPeso.dataFim):'—';
   const imc=calcIMC(last,corpoData.altura);
-  const imcInfo=imcClass(imc);
+  const imcInfo=imcClass(imc, corpoData.sexo);
 
   const lastGordura=gorduraLog.length?gorduraLog[gorduraLog.length-1].val:null;
+  const gordInfo=gorduraClass(lastGordura, corpoData.sexo);
   const massaMagraKg=(last!=null&&lastGordura)?+(last*(1-lastGordura/100)).toFixed(1):null;
   const gorduraKg=(last!=null&&lastGordura)?+(last*lastGordura/100).toFixed(1):null;
   const massaMagraPct=lastGordura?+(100-lastGordura).toFixed(1):null;
@@ -553,7 +577,7 @@ function renderCorpoFull(){
     return `<tr>
       <td>${p.date}</td><td><strong>${p.val} kg</strong></td>
       <td style="color:${dColor};font-weight:700">${dTxt}</td>
-      <td style="color:var(--text2)">${calcIMC(p.val,corpoData.altura)||'—'}</td>
+      <td style="color:var(--text2)">${calcIMC(p.val,corpoData.altura)||'—'} <span style="font-size:10px;color:${(calcIMC(p.val,corpoData.altura)&&imcClass(calcIMC(p.val,corpoData.altura),corpoData.sexo).color)||'var(--text2)'}">${calcIMC(p.val,corpoData.altura)?imcClass(calcIMC(p.val,corpoData.altura),corpoData.sexo).label:''}</span></td>
       <td><button class="btn btn-red btn-xs" onclick="deletePeso('${p.date}')">✕</button></td>
     </tr>`;
   }).join('');
@@ -607,15 +631,24 @@ function renderCorpoFull(){
       </div>
     </div>
 
-    <!-- 3. Altura -->
+    <!-- 3. Altura e Sexo -->
     <div class="card">
-      <div class="card-title">📐 Altura</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Informe sua altura em metros (ex: 1,80). Usada para calcular o IMC.</div>
-      <div class="row">
-        <input class="inp" type="number" id="inp-altura" value="${corpoData.altura||''}" placeholder="Ex: 1,80" step="0.01" min="1" max="2.5" inputmode="decimal"/>
-        <button class="btn btn-sm btn-outline" onclick="saveAlturaData()">Salvar</button>
+      <div class="card-title">📐 Altura e sexo</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Informe sua altura em metros (ex: 1,80) e sexo. Usados para calcular o IMC e classificar a gordura corporal.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="field" style="margin:0"><label>Altura (metros)</label>
+          <input class="inp" type="number" id="inp-altura" value="${corpoData.altura||''}" placeholder="Ex: 1.80" step="0.01" min="1" max="2.5" inputmode="decimal"/>
+        </div>
+        <div class="field" style="margin:0"><label>Sexo</label>
+          <select class="inp" id="inp-sexo">
+            <option value="" ${!corpoData.sexo?'selected':''}>Não informado</option>
+            <option value="M" ${corpoData.sexo==='M'?'selected':''}>Masculino</option>
+            <option value="F" ${corpoData.sexo==='F'?'selected':''}>Feminino</option>
+          </select>
+        </div>
       </div>
-      ${corpoData.altura?`<div style="font-size:13px;color:var(--text2);margin-top:8px">Altura registrada: <strong style="color:var(--text)">${alturaDisplay}</strong></div>`:''}
+      <button class="btn btn-sm btn-outline" onclick="saveAlturaData()">Salvar</button>
+      ${corpoData.altura?`<div style="font-size:13px;color:var(--text2);margin-top:8px">Altura: <strong style="color:var(--text)">${alturaDisplay}</strong>${corpoData.sexo?` · Sexo: <strong style="color:var(--text)">${corpoData.sexo==='M'?'Masculino':'Feminino'}</strong>`:''}</div>`:''}
     </div>
 
     <!-- 4. Métricas atuais -->
@@ -630,7 +663,7 @@ function renderCorpoFull(){
         <div class="stat-box">
           <div class="stat-val">${lastGordura!=null?lastGordura+'%':'—'}</div>
           <div class="stat-label">Gordura corporal</div>
-          <div class="stat-sub" style="color:var(--text2)">${gorduraKg!=null?gorduraKg+' kg':'—'}</div>
+          <div class="stat-sub" style="color:${gordInfo?gordInfo.color:'var(--text2)'}">${gordInfo?gordInfo.label:(gorduraKg!=null?gorduraKg+' kg':'—')}</div>
         </div>
         <div class="stat-box">
           <div class="stat-val">${massaMagraKg!=null?massaMagraKg+' kg':'—'}</div>
@@ -646,7 +679,7 @@ function renderCorpoFull(){
       ${imc?`<div class="imc-box" style="background:${imcInfo.bg};margin-top:10px">
         <div class="imc-val" style="color:${imcInfo.color}">${imc}</div>
         <div class="imc-label" style="color:${imcInfo.color}">${imcInfo.label}</div>
-        <div class="imc-range">Saudável: 18.5 – 24.9 · Altura: ${alturaDisplay}</div>
+        <div class="imc-range">Saudável: 18,5 – ${corpoData.sexo==='M'?'25,0 (masc.)':'24,0 (fem.)'} · Altura: ${alturaDisplay}${corpoData.sexo?` · ${corpoData.sexo==='M'?'Gordura saudável: 10–20%':'Gordura saudável: 18–28%'}`:''}</div>
       </div>`:''}
     </div>
 
