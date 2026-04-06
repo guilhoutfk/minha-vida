@@ -352,6 +352,13 @@ const TASKS_DEF={
 };
 
 // ── STATE ────────────────────────────────────────────────
+// Controle de versão: força reset da estrutura quando o app é atualizado
+const APP_VERSION='4';
+if(S.get('mv_version')!==APP_VERSION){
+  ['mv_grupos','mv_frentes','mv_tasks'].forEach(k=>localStorage.removeItem(k));
+  S.set('mv_version',APP_VERSION);
+}
+
 let grupos    = S.get('mv_grupos')  || GRUPOS_DEF;
 let frentes   = S.get('mv_frentes') || FRENTES_DEF;
 let tasks     = S.get('mv_tasks')   || TASKS_DEF;
