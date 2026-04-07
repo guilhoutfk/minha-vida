@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#0F6E56">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Minha Vida">
@@ -23,12 +24,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* LOGIN */
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:linear-gradient(135deg,#0F6E56,#1D9E75)}
 .login-card{background:white;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
-.login-logo{font-size:52px;margin-bottom:12px}
-.login-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px}
-.login-sub{font-size:14px;color:var(--text2);margin-bottom:32px;line-height:1.5}
-.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 20px;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);transition:background 0.15s}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 20px;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text)}
 .google-btn:hover{background:var(--surface2)}
-.login-note{font-size:12px;color:var(--text3);margin-top:16px;line-height:1.5}
 /* LOADING */
 #loading-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:12px}
@@ -36,21 +33,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* APP */
 #app-root{display:none}
 .hdr{background:linear-gradient(135deg,#0F6E56,#1D9E75 60%,#5DCAA5);padding:16px 16px 20px;color:white;position:sticky;top:0;z-index:100}
-/* PC: cabeçalho mais compacto */
-@media(min-width:768px){
-  .hdr{padding:8px 16px 10px !important}
-  .hdr-title{font-size:17px !important}
-  .hdr-date{font-size:11px !important;margin-top:1px !important}
-  .hdr-user{font-size:10px !important}
-  body{padding-bottom:0 !important}
-  .bnav{display:none !important}
-  .main{padding-top:10px !important}
-}
 .hdr-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hdr-title{font-size:20px;font-weight:700}
 .hdr-date{font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px}
 .hdr-user{font-size:11px;color:rgba(255,255,255,0.7)}
 .hdr-btns{display:flex;gap:6px;flex-shrink:0;align-items:center}
+/* PC: cabeçalho compacto */
+@media(min-width:768px){
+  .hdr{padding:8px 16px 10px !important}
+  .hdr-title{font-size:17px !important}
+  .hdr-date,.hdr-user{font-size:10px !important;margin-top:1px !important}
+}
 .main{max-width:700px;margin:0 auto;padding:14px}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .mc{background:var(--surface);border-radius:var(--radius);padding:12px 8px;box-shadow:var(--shadow);border:1px solid var(--border);text-align:center;cursor:pointer;transition:border-color 0.15s}
@@ -185,42 +178,25 @@ td input:focus,td select:focus{border-color:var(--green)}
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">🌱</div>
-    <div class="login-title">Minha Vida</div>
-    <div class="login-sub">Seu hub pessoal de metas e organização de vida</div>
+    <div style="font-size:52px;margin-bottom:12px">🌱</div>
+    <div style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px">Minha Vida</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:32px;line-height:1.5">Seu hub pessoal de metas e organização de vida</div>
     <button class="google-btn" onclick="loginGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20"/>
       Entrar com Google
     </button>
-    <div class="login-note">Seus dados ficam salvos na nuvem e sincronizados em todos os dispositivos</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:16px">Dados salvos na nuvem e sincronizados em todos os dispositivos</div>
   </div>
 </div>
 
-<!-- CARREGANDO -->
 <div id="loading-screen">
   <div class="spinner"></div>
   <div style="font-size:14px;color:var(--text2)">Carregando seus dados...</div>
 </div>
 
-<!-- ONBOARDING -->
-<div id="onboarding-screen" style="display:none;min-height:100vh;background:var(--bg);padding:0 0 2rem">
-  <div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);padding:24px 20px;color:white;text-align:center">
-    <div style="font-size:36px;margin-bottom:8px">🌱</div>
-    <div style="font-size:22px;font-weight:700;margin-bottom:4px">Bem-vindo ao Minha Vida!</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.85)">Escolha as frentes e subgrupos para começar seu hub</div>
-  </div>
-  <div style="max-width:600px;margin:0 auto;padding:16px" id="onboarding-body"></div>
-  <div style="max-width:600px;margin:0 auto;padding:0 16px">
-    <button onclick="finishOnboarding()" class="btn" style="width:100%;padding:14px;font-size:16px">Criar meu hub →</button>
-  </div>
-</div>
-
-<!-- APP PRINCIPAL -->
 <div id="app-root">
-
 <div class="hdr">
   <div class="hdr-inner">
     <div>
@@ -231,7 +207,7 @@ td input:focus,td select:focus{border-color:var(--green)}
     <div class="hdr-btns">
       <button class="btn btn-sm btn-ghost" onclick="openModal('task')">+ Tarefa</button>
       <button class="btn btn-sm btn-ghost" onclick="openModal('config')">⚙️</button>
-      <img id="user-avatar" class="user-avatar" src="" style="display:none" onclick="confirmLogout()" title="Clique para sair"/>
+      <img id="user-avatar" class="user-avatar" src="" style="display:none" onclick="confirmLogout()" title="Sair"/>
     </div>
   </div>
 </div>
@@ -251,11 +227,7 @@ td input:focus,td select:focus{border-color:var(--green)}
     </div>
     <div id="frentes-main"></div>
   </div>
-
-  <div class="view" id="view-peso">
-    <div id="corpo-full"></div>
-  </div>
-
+  <div class="view" id="view-peso"><div id="corpo-full"></div></div>
   <div class="view" id="view-plan">
     <div class="card">
       <div class="card-title-row">
@@ -263,9 +235,7 @@ td input:focus,td select:focus{border-color:var(--green)}
         <button class="btn btn-sm" onclick="openModal('task')">+ Nova tarefa</button>
       </div>
       <div class="plan-filters">
-        <select class="inp inp-sm" style="max-width:180px" id="plan-fg" onchange="renderPlan()">
-          <option value="">Todas as frentes</option>
-        </select>
+        <select class="inp inp-sm" style="max-width:180px" id="plan-fg" onchange="renderPlan()"><option value="">Todas as frentes</option></select>
         <select class="inp inp-sm" style="max-width:160px" id="plan-sort" onchange="renderPlan()">
           <option value="frente">Ordenar por frente</option>
           <option value="due">Ordenar por vencimento</option>
@@ -274,14 +244,9 @@ td input:focus,td select:focus{border-color:var(--green)}
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th style="width:30px">✓</th>
-            <th>Frente</th>
-            <th>Subgrupo</th>
-            <th>Tarefa</th>
-            <th style="width:110px">Prioridade</th>
-            <th style="width:120px">Vencimento</th>
-            <th>Nota</th>
-            <th style="width:70px">Ações</th>
+            <th style="width:30px">✓</th><th>Frente</th><th>Subgrupo</th><th>Tarefa</th>
+            <th style="width:110px">Prioridade</th><th style="width:120px">Vencimento</th>
+            <th>Nota</th><th style="width:70px">Ações</th>
           </tr></thead>
           <tbody id="plan-body"></tbody>
         </table>
@@ -297,10 +262,7 @@ td input:focus,td select:focus{border-color:var(--green)}
 </div>
 
 <div class="modal-bg" id="modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div id="modal-content"></div>
-  </div>
+  <div class="modal"><div class="modal-handle"></div><div id="modal-content"></div></div>
 </div>
 
 <div class="toast" id="undo-toast">
@@ -313,63 +275,47 @@ td input:focus,td select:focus{border-color:var(--green)}
     <button onclick="dismissToast()" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;padding:0 4px;line-height:1">×</button>
   </div>
 </div>
-
 </div><!-- /app-root -->
 
-<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-// ── FIREBASE INIT ────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyCo1YkVSRareO6yBeutj_8qW1GpYSe91mk",
-  authDomain: "mylifeonhub.firebaseapp.com",
-  projectId: "mylifeonhub",
-  storageBucket: "mylifeonhub.firebasestorage.app",
-  messagingSenderId: "43270735546",
-  appId: "1:43270735546:web:3328649df17b99eb906483"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+firebase.initializeApp({
+  apiKey:"AIzaSyCo1YkVSRareO6yBeutj_8qW1GpYSe91mk",
+  authDomain:"mylifeonhub.firebaseapp.com",
+  projectId:"mylifeonhub",
+  storageBucket:"mylifeonhub.firebasestorage.app",
+  messagingSenderId:"43270735546",
+  appId:"1:43270735546:web:3328649df17b99eb906483"
+});
+const auth=firebase.auth();
+const db=firebase.firestore();
 
-// ── AUTH ─────────────────────────────────────────────────
 function loginGoogle(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e=>alert('Erro ao entrar: '+e.message));
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert('Erro: '+e.message));
 }
-function confirmLogout(){
-  if(confirm('Sair da conta?')) auth.signOut();
+function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
+
+let currentUID=null;
+
+async function fbSet(key,value){
+  if(!currentUID)return;
+  localStorage.setItem('fb_'+currentUID+'_'+key,JSON.stringify(value));
+  try{await db.collection('users').doc(currentUID).collection('data').doc(key).set({v:JSON.stringify(value)});}
+  catch(e){console.warn('fbSet error:',e);}
 }
-
-// ── STORAGE (Firebase + localStorage cache) ───────────────
-let currentUID = null;
-
 async function fbGet(key){
-  if(currentUID){
-    try{
-      const snap = await db.collection('users').doc(currentUID).collection('data').doc(key).get();
-      if(snap.exists){
-        const val = JSON.parse(snap.data().v);
-        localStorage.setItem('fb_'+currentUID+'_'+key, JSON.stringify(val));
-        return val;
-      }
-    }catch(e){ console.warn('Firebase read error:', e); }
-    // Fallback: cache local específico deste usuário
-    try{ return JSON.parse(localStorage.getItem('fb_'+currentUID+'_'+key)); }catch{ return null; }
-  }
-  return null;
-}
-
-async function fbSet(key, value){
-  if(currentUID){
-    localStorage.setItem('fb_'+currentUID+'_'+key, JSON.stringify(value));
-    try{
-      await db.collection('users').doc(currentUID).collection('data').doc(key).set({v: JSON.stringify(value)});
-    }catch(e){ console.warn('Firebase write error:', e); }
-  }
+  if(!currentUID)return null;
+  try{
+    const snap=await db.collection('users').doc(currentUID).collection('data').doc(key).get();
+    if(snap.exists){
+      const val=JSON.parse(snap.data().v);
+      localStorage.setItem('fb_'+currentUID+'_'+key,JSON.stringify(val));
+      return val;
+    }
+  }catch(e){console.warn('fbGet error:',e);}
+  try{return JSON.parse(localStorage.getItem('fb_'+currentUID+'_'+key));}catch{return null;}
 }
 
 // ── DEFAULTS ─────────────────────────────────────────────
@@ -386,42 +332,45 @@ const GRUPOS_DEF=[
   {id:'estudos',label:'Estudos',icon:'📚',color:'#534AB7'},
   {id:'esportes',label:'Esportes',icon:'🏃',color:'#E24B4A'},
 ];
-const FRENTES_DEF=[
-  {id:'f0',title:'Emagrecimento',grupo:'saude',open:true},
-  {id:'f8',title:'Hérnia inguinal',grupo:'saude',open:false},
-  {id:'f9',title:'Unicomicose',grupo:'saude',open:false},
-  {id:'f10',title:'Gastro',grupo:'saude',open:false},
-  {id:'f11',title:'Agendamentos médicos',grupo:'saude',open:false},
-  {id:'f5',title:'HelpMed',grupo:'trabalho',open:false},
-  {id:'f1',title:'Inventário Sahara',grupo:'familia',open:false},
-  {id:'f7',title:'Rotina & hábitos',grupo:'pessoal',open:false},
-  {id:'f2',title:'Finanças pessoais',grupo:'financeiro',open:false},
-  {id:'f3',title:'Casa & reformas',grupo:'infra',open:false},
-  {id:'f4',title:'Vendas',grupo:'infra',open:false},
-  {id:'f6',title:'Carro & documentos',grupo:'infra',open:false},
+
+// Subgrupos padrão para NOVOS usuários
+const FRENTES_NOVOS=[
+  {id:'ns1',title:'Acompanhamento médico',grupo:'saude',open:false},
+  {id:'ns2',title:'Alimentação & dieta',grupo:'saude',open:false},
+  {id:'ns3',title:'Atividade física',grupo:'saude',open:false},
+  {id:'ns4',title:'Saúde mental',grupo:'saude',open:false},
+  {id:'ns5',title:'Exames & consultas',grupo:'saude',open:false},
+  {id:'nt1',title:'Projetos em andamento',grupo:'trabalho',open:false},
+  {id:'nt2',title:'Reuniões & agenda',grupo:'trabalho',open:false},
+  {id:'nt3',title:'Desenvolvimento profissional',grupo:'trabalho',open:false},
+  {id:'nt4',title:'Finanças do negócio',grupo:'trabalho',open:false},
+  {id:'nf1',title:'Filhos',grupo:'familia',open:false},
+  {id:'nf2',title:'Cônjuge / relacionamento',grupo:'familia',open:false},
+  {id:'nf3',title:'Pais & parentes',grupo:'familia',open:false},
+  {id:'nf4',title:'Eventos & datas especiais',grupo:'familia',open:false},
+  {id:'ni1',title:'Casa & reformas',grupo:'infra',open:false},
+  {id:'ni2',title:'Carro & transporte',grupo:'infra',open:false},
+  {id:'ni3',title:'Compras & serviços',grupo:'infra',open:false},
+  {id:'ni4',title:'Documentos & burocracia',grupo:'infra',open:false},
+  {id:'nfi1',title:'Orçamento pessoal',grupo:'financeiro',open:false},
+  {id:'nfi2',title:'Investimentos',grupo:'financeiro',open:false},
+  {id:'nfi3',title:'Dívidas & pagamentos',grupo:'financeiro',open:false},
+  {id:'nfi4',title:'Cartões de crédito',grupo:'financeiro',open:false},
+  {id:'np1',title:'Rotina & hábitos',grupo:'pessoal',open:false},
+  {id:'np2',title:'Objetivos pessoais',grupo:'pessoal',open:false},
+  {id:'np3',title:'Leituras & estudos',grupo:'pessoal',open:false},
+  {id:'np4',title:'Lazer & hobbies',grupo:'pessoal',open:false},
+  {id:'nl1',title:'Viagens planejadas',grupo:'lazer',open:false},
+  {id:'nl2',title:'Entretenimento',grupo:'lazer',open:false},
+  {id:'nl3',title:'Esportes & atividades',grupo:'lazer',open:false},
+  {id:'ne1',title:'Cursos em andamento',grupo:'estudos',open:false},
+  {id:'ne2',title:'Leituras',grupo:'estudos',open:false},
+  {id:'ne3',title:'Certificações',grupo:'estudos',open:false},
+  {id:'nsp1',title:'Treinos',grupo:'esportes',open:false},
+  {id:'nsp2',title:'Metas físicas',grupo:'esportes',open:false},
+  {id:'nv1',title:'Destinos sonhados',grupo:'viagens',open:false},
+  {id:'nv2',title:'Orçamento de viagem',grupo:'viagens',open:false},
 ];
-const TASKS_DEF={
-  f0:[
-    {id:'e1',text:'Comprar Wegovy 1mg',done:false,p:'alta',due:'2026-04-09',note:'Antes de quinta-feira'},
-    {id:'e2',text:'Iniciar curso de plano alimentar',done:false,p:'alta',due:'2026-04-09',note:'Começa dia 9'},
-    {id:'e3',text:'Montar tabelas e cardápios do curso',done:false,p:'alta',due:'2026-04-15'},
-    {id:'e4',text:'Aplicar primeira dose do Wegovy',done:false,p:'alta',due:'2026-04-09'},
-    {id:'e5',text:'Agendar endócrino para acompanhamento',done:false,p:'alta',due:'2026-04-10'},
-    {id:'e6',text:'Pesagem semanal de controle',done:false,p:'media',note:'Todo sábado',recurrence:{active:true,period:'semanal',count:0}},
-    {id:'e7',text:'Atingir meta de −10 kg',done:false,p:'alta',due:'2026-05-09'},
-  ],
-  f8:[{id:'t39',text:'Agendar cirurgião geral (São Camilo)',done:false,p:'alta',due:'2026-04-10'},{id:'t40',text:'Exames e preparo pré-operatório',done:false,p:'alta'},{id:'t41',text:'Agendamento da cirurgia',done:false,p:'alta'}],
-  f9:[{id:'t42',text:'Marcar dermatologista',done:false,p:'media',due:'2026-04-20'},{id:'t43',text:'Medicamentos',done:false,p:'media'},{id:'t44',text:'Podóloga',done:false,p:'baixa'}],
-  f10:[{id:'t45',text:'Agendar gastro',done:false,p:'media',due:'2026-04-20'},{id:'t46',text:'Endoscopia',done:false,p:'media'},{id:'t47',text:'Tratamento do estômago',done:false,p:'media'}],
-  f11:[{id:'t48',text:'Endócrino',done:false,p:'alta',due:'2026-04-10',note:'Passo 1'},{id:'t49',text:'Cirurgião geral',done:false,p:'alta',due:'2026-04-10',note:'Passo 1'},{id:'t50',text:'Gastro',done:false,p:'media',due:'2026-04-20'},{id:'t51',text:'Dermatologista',done:false,p:'media',due:'2026-04-20'}],
-  f5:[{id:'t20',text:'Saques',done:true,p:'alta'},{id:'t21',text:'Entregar os APCs',done:false,p:'alta',due:'2026-04-10'},{id:'t22',text:'Catálogo cab e pescoço',done:false,p:'media'},{id:'t23',text:'Catálogo Buco',done:false,p:'media'},{id:'t24',text:'Lista médicos',done:false,p:'media'},{id:'t25',text:'Roteiro e agendamento',done:false,p:'alta',due:'2026-04-12'},{id:'t26',text:'Enviar e-mail sobre Salomão',done:true,p:'alta'}],
-  f1:[{id:'t1',text:'Providenciar documentação — cartório',done:true,p:'alta'},{id:'t2',text:'Acompanhar outra lista',done:true,p:'media'}],
-  f7:[{id:'t31',text:'Quarta-feira — Culto',done:false,p:'alta',note:'Toda semana',recurrence:{active:true,period:'semanal',count:0}},{id:'t32',text:'Jogar videogame',done:false,p:'baixa',due:'2026-05-18'},{id:'t33',text:'Ler todo dia 1h',done:false,p:'media',note:'Hábito diário',recurrence:{active:true,period:'diario',count:0}},{id:'t34',text:'Arrumar Note para Chrome OS (Manu)',done:false,p:'media'}],
-  f2:[{id:'t3',text:'Ajustar cartões de crédito',done:false,p:'alta',due:'2026-04-20'},{id:'t4',text:'Organizar finanças pessoais',done:false,p:'alta',due:'2026-04-20'},{id:'t5',text:'Organizar finanças da empresa',done:false,p:'media',due:'2026-04-30'},{id:'t6',text:'Organizar finanças da casa',done:false,p:'media',due:'2026-04-30'},{id:'t7',text:'Organizar compras da casa',done:false,p:'baixa'}],
-  f3:[{id:'t8',text:'Arrumar escritório — bagunça',done:false,p:'media'},{id:'t9',text:'Arrumar escritório — organização',done:false,p:'media'},{id:'t10',text:'Espelho redondo — pintar',done:false,p:'baixa'},{id:'t11',text:'Proteção garagem',done:false,p:'media'},{id:'t12',text:'Pintura porta crianças + batedor',done:false,p:'baixa'},{id:'t13',text:'Arrumar garagem',done:false,p:'baixa'},{id:'t14',text:'Espelho banheiro',done:true,p:'alta'},{id:'t15',text:'Luzes bolinha',done:true,p:'media'},{id:'t16',text:'Mão francesa escadas',done:true,p:'alta'}],
-  f4:[{id:'t17',text:'Geladeira — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},{id:'t18',text:'Máquina de lavar — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'},{id:'t19',text:'Fogão — limpar e tirar fotos',done:false,p:'media',due:'2026-04-15'}],
-  f6:[{id:'t27',text:'Instalar tag — encontrar tag',done:true,p:'alta'},{id:'t28',text:'Instalar tag — alterar placa',done:true,p:'alta'},{id:'t29',text:'App Porto apólice',done:true,p:'media'},{id:'t30',text:'IR do AP Eurus',done:true,p:'alta'}],
-};
 
 // ── STATE ─────────────────────────────────────────────────
 let grupos=[],frentes=[],tasks={},pesoLog=[],gorduraLog=[],corpoData={altura:'',sexo:''},metaPeso={kg:10,dataFim:'2026-05-09'};
@@ -429,15 +378,14 @@ let activeGrupo='todas',activeFilter='all',sortByDate=false,activeView='dash';
 let editingTask=null,selectedColor='#1D9E75',editingFrenteId=null,editingGrupoId=null;
 let undoState=null,undoTimer=null;
 
-// Salva sempre no Firebase e no cache local
-const saveGrupos  = ()=>fbSet('grupos',grupos);
-const saveFrente  = ()=>fbSet('frentes',frentes);
-const saveTasks   = ()=>fbSet('tasks',tasks);
-const savePeso    = ()=>fbSet('peso',pesoLog);
-const saveGordura = ()=>fbSet('gordura',gorduraLog);
-const saveCorpo   = ()=>fbSet('corpo',corpoData);
-const saveMeta    = ()=>fbSet('meta',metaPeso);
-const uid = ()=>Math.random().toString(36).slice(2,9);
+const saveGrupos=()=>fbSet('grupos',grupos);
+const saveFrente=()=>fbSet('frentes',frentes);
+const saveTasks=()=>fbSet('tasks',tasks);
+const savePeso=()=>fbSet('peso',pesoLog);
+const saveGordura=()=>fbSet('gordura',gorduraLog);
+const saveCorpo=()=>fbSet('corpo',corpoData);
+const saveMeta=()=>fbSet('meta',metaPeso);
+const uid=()=>Math.random().toString(36).slice(2,9);
 
 // ── UTILS ─────────────────────────────────────────────────
 const todayD=new Date();todayD.setHours(0,0,0,0);
@@ -449,177 +397,72 @@ const pColors={alta:'#E24B4A',media:'#EF9F27',baixa:'#1D9E75'};
 const pLbl={alta:'Alta',media:'Média',baixa:'Baixa'};
 const pOrd={alta:0,media:1,baixa:2};
 const recPeriodLbl={diario:'Diário',semanal:'Semanal',quinzenal:'Quinzenal',mensal:'Mensal'};
-
 function getFrenteColor(fid){const f=frentes.find(f=>f.id===fid);if(!f)return'#888';const g=grupos.find(g=>g.id===f.grupo);return g?g.color:'#888';}
 function allTasksFlat(){const rows=[];frentes.forEach(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:f.grupo,color:'#888'};(tasks[f.id]||[]).forEach(t=>rows.push({...t,fid:f.id,ftitle:f.title,fgrupo:f.grupo,fgLabel:g.label,fColor:g.color}));});return rows;}
 
-// ── ONBOARDING DATA ───────────────────────────────────────
-const ONBOARDING_SUGESTOES=[
-  {grupoId:'saude', subs:['Acompanhamento médico','Alimentação & dieta','Atividade física','Saúde mental','Exames & consultas']},
-  {grupoId:'trabalho', subs:['Projetos em andamento','Reuniões & agenda','Desenvolvimento profissional','Finanças do negócio']},
-  {grupoId:'familia', subs:['Filhos','Cônjuge / relacionamento','Pais & parentes','Eventos & datas especiais']},
-  {grupoId:'infra', subs:['Casa & reformas','Carro & transporte','Compras & serviços','Documentos & burocracia']},
-  {grupoId:'financeiro', subs:['Orçamento pessoal','Investimentos','Dívidas & pagamentos','Cartões de crédito']},
-  {grupoId:'pessoal', subs:['Rotina & hábitos','Objetivos pessoais','Leituras & estudos','Lazer & hobbies']},
-  {grupoId:'lazer', subs:['Viagens planejadas','Entretenimento','Esportes & atividades']},
-  {grupoId:'estudos', subs:['Cursos em andamento','Leituras','Certificações','Idiomas']},
-  {grupoId:'esportes', subs:['Treinos','Competições','Equipamentos','Metas físicas']},
-  {grupoId:'viagens', subs:['Viagens planejadas','Destinos sonhados','Documentos de viagem','Orçamento de viagem']},
-];
-
-function renderOnboarding(){
-  const g=grupos.filter(g=>g.id!=='todas');
-  document.getElementById('onboarding-body').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:13px;color:var(--text2)">Selecione o que deseja organizar:</div>
-      <button onclick="toggleAllOnboarding()" id="btn-select-all" class="btn btn-outline btn-sm">Selecionar todos</button>
-    </div>
-    ${ONBOARDING_SUGESTOES.map(s=>{
-      const gr=g.find(x=>x.id===s.grupoId);
-      if(!gr)return'';
-      return `<div class="card" style="margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer" onclick="toggleGrupoOnboarding('${gr.id}')">
-          <input type="checkbox" id="og-${gr.id}" checked style="width:16px;height:16px;cursor:pointer" onchange="syncGrupoCheck('${gr.id}')"/>
-          <div style="width:12px;height:12px;border-radius:50%;background:${gr.color};flex-shrink:0"></div>
-          <span style="font-size:15px;font-weight:600">${gr.icon} ${gr.label}</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;padding-left:26px" id="subs-${gr.id}">
-          ${s.subs.map((sub,i)=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-            <input type="checkbox" id="os-${gr.id}-${i}" checked style="width:15px;height:15px;cursor:pointer"/>
-            ${sub}
-          </label>`).join('')}
-        </div>
-      </div>`;
-    }).join('')}
-    <div style="font-size:12px;color:var(--text2);text-align:center;margin-top:8px">Você pode adicionar ou remover frentes e subgrupos depois nas ⚙️ Configurações</div>`;
-}
-
-function toggleGrupoOnboarding(gid){
-  const cb=document.getElementById('og-'+gid);
-  cb.checked=!cb.checked;
-  syncGrupoCheck(gid);
-}
-function syncGrupoCheck(gid){
-  const cb=document.getElementById('og-'+gid);
-  const subs=document.getElementById('subs-'+gid);
-  if(subs)subs.style.opacity=cb.checked?'1':'0.4';
-}
-function toggleAllOnboarding(){
-  const btn=document.getElementById('btn-select-all');
-  const allChecked=ONBOARDING_SUGESTOES.every(s=>document.getElementById('og-'+s.grupoId)&&document.getElementById('og-'+s.grupoId).checked);
-  const newState=!allChecked;
-  btn.textContent=newState?'Desmarcar todos':'Selecionar todos';
-  ONBOARDING_SUGESTOES.forEach(s=>{
-    const cb=document.getElementById('og-'+s.grupoId);
-    if(cb){cb.checked=newState;syncGrupoCheck(s.grupoId);}
-    s.subs.forEach((_,i)=>{const sc=document.getElementById(`os-${s.grupoId}-${i}`);if(sc)sc.checked=newState;});
-  });
-}
-
-async function finishOnboarding(){
-  // Monta frentes e tasks baseado nas seleções
-  const novasFrentes=[];
-  const novasTasks={};
-  ONBOARDING_SUGESTOES.forEach(s=>{
-    const grupoAtivo=document.getElementById('og-'+s.grupoId);
-    if(!grupoAtivo||!grupoAtivo.checked)return;
-    s.subs.forEach((sub,i)=>{
-      const subCb=document.getElementById(`os-${s.grupoId}-${i}`);
-      if(!subCb||!subCb.checked)return;
-      const fid='f'+uid();
-      novasFrentes.push({id:fid,title:sub,grupo:s.grupoId,open:false});
-      novasTasks[fid]=[];
-    });
-  });
-
-  frentes=novasFrentes;
-  tasks=novasTasks;
-  await saveFrente();
-  await saveTasks();
-  await fbSet('onboarded','true');
-
-  document.getElementById('onboarding-screen').style.display='none';
-  document.getElementById('app-root').style.display='block';
-  renderMetrics();renderPesoCard();renderTabs();renderDash();
-}
-
-// ── AUTH STATE ────────────────────────────────────────────
-// Lê dados legados do localStorage antigo (chaves sem prefixo fb_)
+// ── MIGRAÇÃO LEGADO ───────────────────────────────────────
 function getLegacy(key){
-  const oldKeys={'grupos':'mv_grupos','frentes':'mv_frentes','tasks':'mv_tasks',
-    'peso':'mv_peso','gordura':'mv_gordura','corpo':'mv_corpo','meta':'mv_meta','grupo':'mv_grupo'};
-  try{
-    const val=localStorage.getItem(oldKeys[key])||localStorage.getItem('mv_'+key);
-    return val?JSON.parse(val):null;
-  }catch{return null;}
+  const map={'grupos':'mv_grupos','frentes':'mv_frentes','tasks':'mv_tasks','peso':'mv_peso','gordura':'mv_gordura','corpo':'mv_corpo','meta':'mv_meta','grupo':'mv_grupo'};
+  try{const v=localStorage.getItem(map[key])||localStorage.getItem('mv_'+key);return v?JSON.parse(v):null;}catch{return null;}
 }
-
 async function migrateFromLocalStorage(){
   const snap=await db.collection('users').doc(currentUID).collection('data').doc('tasks').get().catch(()=>null);
-  if(snap&&snap.exists) return false;
-  const legacyTasks=getLegacy('tasks');
-  if(!legacyTasks||Object.keys(legacyTasks).length===0) return false;
-  const keys=['grupos','frentes','tasks','peso','gordura','corpo','meta','grupo'];
-  let migrated=false;
-  for(const key of keys){
-    const val=getLegacy(key);
-    if(val!==null){await fbSet(key,val);migrated=true;}
+  if(snap&&snap.exists)return false;
+  const lt=getLegacy('tasks');
+  if(!lt||Object.keys(lt).length===0)return false;
+  for(const k of['grupos','frentes','tasks','peso','gordura','corpo','meta','grupo']){
+    const v=getLegacy(k);if(v!==null)await fbSet(k,v);
   }
-  await fbSet('onboarded','true'); // usuário legado não precisa de onboarding
-  return migrated;
+  return true;
 }
 
+// ── AUTH ─────────────────────────────────────────────────
 auth.onAuthStateChanged(async user=>{
   document.getElementById('login-screen').style.display='none';
   if(user){
     currentUID=user.uid;
     document.getElementById('loading-screen').style.display='flex';
 
-    // Verifica se precisa migrar dados antigos
-    const migrated = await migrateFromLocalStorage();
+    const migrated=await migrateFromLocalStorage();
 
-    // Verifica se já fez onboarding
-    const onboardedSnap=await db.collection('users').doc(currentUID).collection('data').doc('onboarded').get().catch(()=>null);
-    const jaFezOnboarding=onboardedSnap&&onboardedSnap.exists;
+    // Carrega dados
+    grupos      = await fbGet('grupos')  || GRUPOS_DEF;
+    const fbFrentes = await fbGet('frentes');
+    const fbTasks   = await fbGet('tasks');
+    pesoLog     = await fbGet('peso')    || [];
+    gorduraLog  = await fbGet('gordura') || [];
+    corpoData   = await fbGet('corpo')   || {altura:'',sexo:''};
+    metaPeso    = await fbGet('meta')    || {kg:10,dataFim:'2026-05-09'};
+    activeGrupo = await fbGet('grupo')   || 'todas';
 
-    // Carrega dados do Firebase
-    grupos    = await fbGet('grupos')  || GRUPOS_DEF;
-    frentes   = await fbGet('frentes') || [];
-    tasks     = await fbGet('tasks')   || {};
-    pesoLog   = await fbGet('peso')    || [];
-    gorduraLog= await fbGet('gordura') || [];
-    corpoData = await fbGet('corpo')   || {altura:'',sexo:''};
-    metaPeso  = await fbGet('meta')    || {kg:10,dataFim:'2026-05-09'};
-    activeGrupo = await fbGet('grupo') || 'todas';
+    // Novo usuário: recebe subgrupos padrão com tasks vazias
+    if(!fbFrentes||fbFrentes.length===0){
+      frentes=FRENTES_NOVOS;
+      tasks={};FRENTES_NOVOS.forEach(f=>{tasks[f.id]=[];});
+      await saveFrente();await saveTasks();
+    } else {
+      frentes=fbFrentes;
+      tasks=fbTasks||{};
+    }
 
-    // Garante todos os grupos padrão
+    // Garante grupos padrão
     let changed=false;
     GRUPOS_DEF.forEach(def=>{if(!grupos.find(g=>g.id===def.id)){grupos.push(def);changed=true;}});
     if(changed)saveGrupos();
 
-    // UI do usuário
     document.getElementById('hdr-user').textContent=user.displayName||user.email;
-    const avatar=document.getElementById('user-avatar');
-    if(user.photoURL){avatar.src=user.photoURL;avatar.style.display='block';}
+    const av=document.getElementById('user-avatar');
+    if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
     document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
     document.getElementById('loading-screen').style.display='none';
+    document.getElementById('app-root').style.display='block';
 
-    if(!jaFezOnboarding){
-      // Novo usuário — mostra onboarding
-      document.getElementById('onboarding-screen').style.display='block';
-      renderOnboarding();
-    } else {
-      // Usuário existente — vai direto para o app
-      document.getElementById('app-root').style.display='block';
-      if(migrated){
-        setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
-      }
-      renderMetrics();renderPesoCard();renderTabs();renderDash();
-    }
+    if(migrated)setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
+
+    renderMetrics();renderPesoCard();renderTabs();renderDash();
   } else {
     currentUID=null;
     document.getElementById('loading-screen').style.display='none';
-    document.getElementById('onboarding-screen').style.display='none';
     document.getElementById('app-root').style.display='none';
     document.getElementById('login-screen').style.display='flex';
   }
@@ -643,72 +486,70 @@ function setFilterMc(f){document.querySelectorAll('.fb').forEach(b=>b.classList.
 
 // ── PESO ─────────────────────────────────────────────────
 function pesoStats(){const first=pesoLog.length?pesoLog[0].val:null;const last=pesoLog.length?pesoLog[pesoLog.length-1].val:null;const diff=(first!=null&&last!=null)?+(last-first).toFixed(1):null;const metaKg=parseFloat(metaPeso.kg)||10;const pct=diff!==null?Math.min(100,Math.max(0,Math.round(Math.abs(diff)/metaKg*100))):0;const diasRestantes=metaPeso.dataFim?daysFrom(metaPeso.dataFim):null;return{first,last,diff,pct,metaKg,diasRestantes};}
-function addPeso(inputId){const inp=document.getElementById(inputId);const v=parseFloat(inp.value);if(isNaN(v)||v<30||v>300){alert('Digite um peso válido');return;}const today=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});const idx=pesoLog.findIndex(p=>p.date===today);if(idx>=0)pesoLog[idx].val=v;else pesoLog.push({date:today,val:v});inp.value='';savePeso();renderPesoCard();if(activeView==='peso')renderCorpoFull();}
-function addGordura(inputId){const inp=document.getElementById(inputId);const v=parseFloat(inp.value);if(isNaN(v)||v<1||v>70){alert('Digite um percentual válido');return;}const today=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});const idx=gorduraLog.findIndex(p=>p.date===today);if(idx>=0)gorduraLog[idx].val=v;else gorduraLog.push({date:today,val:v});inp.value='';saveGordura();renderCorpoFull();}
+function addPeso(id){const inp=document.getElementById(id);const v=parseFloat(inp.value);if(isNaN(v)||v<30||v>300){alert('Digite um peso válido');return;}const today=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});const idx=pesoLog.findIndex(p=>p.date===today);if(idx>=0)pesoLog[idx].val=v;else pesoLog.push({date:today,val:v});inp.value='';savePeso();renderPesoCard();if(activeView==='peso')renderCorpoFull();}
+function addGordura(id){const inp=document.getElementById(id);const v=parseFloat(inp.value);if(isNaN(v)||v<1||v>70){alert('% inválido');return;}const today=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});const idx=gorduraLog.findIndex(p=>p.date===today);if(idx>=0)gorduraLog[idx].val=v;else gorduraLog.push({date:today,val:v});inp.value='';saveGordura();renderCorpoFull();}
 function deletePeso(date){if(!confirm('Remover?'))return;pesoLog=pesoLog.filter(p=>p.date!==date);savePeso();renderPesoCard();if(activeView==='peso')renderCorpoFull();}
 function deleteGordura(date){if(!confirm('Remover?'))return;gorduraLog=gorduraLog.filter(p=>p.date!==date);saveGordura();renderCorpoFull();}
 function saveMeta2(){metaPeso.kg=parseFloat(document.getElementById('meta-kg').value)||10;metaPeso.dataFim=document.getElementById('meta-data').value||'';saveMeta();renderPesoCard();renderCorpoFull();}
-function saveAlturaData(){const raw=(document.getElementById('inp-altura').value||'').replace(',','.');corpoData.altura=raw;corpoData.sexo=document.getElementById('inp-sexo').value;saveCorpo();renderCorpoFull();}
+function saveAlturaData(){corpoData.altura=(document.getElementById('inp-altura').value||'').replace(',','.');corpoData.sexo=document.getElementById('inp-sexo').value;saveCorpo();renderCorpoFull();}
 
 function renderPesoCard(){
   const{first,last,diff,pct,metaKg,diasRestantes}=pesoStats();
-  const metaFimFmt=metaPeso.dataFim?fmtDateBR(metaPeso.dataFim):'—';
-  const logHtml=pesoLog.slice().reverse().slice(0,8).map((p,i,arr)=>{const prev=arr[i+1];let dh='';if(prev){const d=+(p.val-prev.val).toFixed(1);dh=`<div class="pe-diff ${d<=0?'c-dn':'c-up'}">${d<=0?'▼':'▲'}${Math.abs(d)}</div>`;}return `<div class="pe"><div class="pe-date">${p.date}</div><div class="pe-val">${p.val}</div>${dh}</div>`;}).join('');
-  document.getElementById('peso-card').innerHTML=`<div class="card"><div class="card-title">⚖️ Tracker de peso</div><div class="chips"><span class="chip chip-b">Atual: ${last!=null?last+' kg':'—'}</span><span class="chip chip-o">${diff!==null?(diff<=0?'▼ Perda':'▲ Ganho')+': '+Math.abs(diff)+' kg':'—'}</span><span class="chip chip-g">Meta: −${metaKg} kg até ${metaFimFmt}</span>${diasRestantes!==null?`<span class="chip ${diasRestantes<0?'chip-r':'chip-b'}">${diasRestantes>=0?diasRestantes+' dias':'Prazo encerrado'}</span>`:''}</div><div class="row"><input class="inp" type="number" id="pinput" placeholder="Peso de hoje (ex: 92.5)" step="0.1" min="30" max="300" inputmode="decimal"/><button class="btn btn-sm" onclick="addPeso('pinput')">Registrar</button></div>${pesoLog.length?`<div class="peso-log">${logHtml}</div><div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:'<div style="font-size:12px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>`;
+  const mf=metaPeso.dataFim?fmtDateBR(metaPeso.dataFim):'—';
+  const log=pesoLog.slice().reverse().slice(0,8).map((p,i,arr)=>{const prev=arr[i+1];let dh='';if(prev){const d=+(p.val-prev.val).toFixed(1);dh=`<div class="pe-diff ${d<=0?'c-dn':'c-up'}">${d<=0?'▼':'▲'}${Math.abs(d)}</div>`;}return `<div class="pe"><div class="pe-date">${p.date}</div><div class="pe-val">${p.val}</div>${dh}</div>`;}).join('');
+  document.getElementById('peso-card').innerHTML=`<div class="card"><div class="card-title">⚖️ Tracker de peso</div><div class="chips"><span class="chip chip-b">Atual: ${last!=null?last+' kg':'—'}</span><span class="chip chip-o">${diff!==null?(diff<=0?'▼ Perda':'▲ Ganho')+': '+Math.abs(diff)+' kg':'—'}</span><span class="chip chip-g">Meta: −${metaKg} kg até ${mf}</span>${diasRestantes!==null?`<span class="chip ${diasRestantes<0?'chip-r':'chip-b'}">${diasRestantes>=0?diasRestantes+' dias':'Prazo encerrado'}</span>`:''}</div><div class="row"><input class="inp" type="number" id="pinput" placeholder="Peso de hoje (ex: 92.5)" step="0.1" min="30" max="300" inputmode="decimal"/><button class="btn btn-sm" onclick="addPeso('pinput')">Registrar</button></div>${pesoLog.length?`<div class="peso-log">${log}</div><div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:'<div style="font-size:12px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>`;
 }
 
-// ── IMC ───────────────────────────────────────────────────
 function calcIMC(peso,altura){if(!peso||!altura)return null;let h=parseFloat(String(altura).replace(',','.'));if(h>3)h=h/100;if(h<=0)return null;return+(peso/(h*h)).toFixed(1);}
-function imcClass(imc,sexo){if(!imc)return{label:'—',color:'var(--text2)',bg:'var(--surface2)'};const limNormal=sexo==='M'?25:24;if(imc<18.5)return{label:'Abaixo do peso',color:'#185FA5',bg:'#E6F1FB'};if(imc<limNormal)return{label:'Peso normal ✓',color:'#085041',bg:'#E1F5EE'};if(imc<30)return{label:'Sobrepeso',color:'#854F0B',bg:'#FAEEDA'};if(imc<35)return{label:'Obesidade grau I',color:'#993C1D',bg:'#FAECE7'};if(imc<40)return{label:'Obesidade grau II',color:'#7B1010',bg:'#FFCCCC'};return{label:'Obesidade grau III',color:'#5c0a0a',bg:'#FFB3B3'};}
+function imcClass(imc,sexo){if(!imc)return{label:'—',color:'var(--text2)',bg:'var(--surface2)'};const lim=sexo==='M'?25:24;if(imc<18.5)return{label:'Abaixo do peso',color:'#185FA5',bg:'#E6F1FB'};if(imc<lim)return{label:'Peso normal ✓',color:'#085041',bg:'#E1F5EE'};if(imc<30)return{label:'Sobrepeso',color:'#854F0B',bg:'#FAEEDA'};if(imc<35)return{label:'Obesidade grau I',color:'#993C1D',bg:'#FAECE7'};if(imc<40)return{label:'Obesidade grau II',color:'#7B1010',bg:'#FFCCCC'};return{label:'Obesidade grau III',color:'#5c0a0a',bg:'#FFB3B3'};}
 function gorduraClass(pct,sexo){if(pct==null)return null;if(sexo==='M'){if(pct<6)return{label:'Abaixo do mínimo',color:'#185FA5'};if(pct<=13)return{label:'Atlético',color:'#085041'};if(pct<=20)return{label:'Saudável ✓',color:'#1D9E75'};if(pct<=25)return{label:'Aceitável',color:'#854F0B'};return{label:'Excesso de gordura',color:'#993C1D'};}else{if(pct<14)return{label:'Abaixo do mínimo',color:'#185FA5'};if(pct<=20)return{label:'Atlético',color:'#085041'};if(pct<=28)return{label:'Saudável ✓',color:'#1D9E75'};if(pct<=35)return{label:'Aceitável',color:'#854F0B'};return{label:'Excesso de gordura',color:'#993C1D'};}}
 
 function renderCorpoFull(){
   const{first,last,diff,pct,metaKg,diasRestantes}=pesoStats();
-  const metaFimFmt=metaPeso.dataFim?fmtDateBR(metaPeso.dataFim):'—';
-  const imc=calcIMC(last,corpoData.altura);const imcInfo=imcClass(imc,corpoData.sexo);
-  const lastGordura=gorduraLog.length?gorduraLog[gorduraLog.length-1].val:null;
-  const gordInfo=gorduraClass(lastGordura,corpoData.sexo);
-  const massaMagraKg=(last!=null&&lastGordura)?+(last*(1-lastGordura/100)).toFixed(1):null;
-  const gorduraKg=(last!=null&&lastGordura)?+(last*lastGordura/100).toFixed(1):null;
-  const massaMagraPct=lastGordura?+(100-lastGordura).toFixed(1):null;
+  const mf=metaPeso.dataFim?fmtDateBR(metaPeso.dataFim):'—';
+  const imc=calcIMC(last,corpoData.altura);const ii=imcClass(imc,corpoData.sexo);
+  const lg=gorduraLog.length?gorduraLog[gorduraLog.length-1].val:null;
+  const gi=gorduraClass(lg,corpoData.sexo);
+  const mmKg=(last!=null&&lg)?+(last*(1-lg/100)).toFixed(1):null;
+  const gKg=(last!=null&&lg)?+(last*lg/100).toFixed(1):null;
+  const mmPct=lg?+(100-lg).toFixed(1):null;
   let h=parseFloat(String(corpoData.altura||'').replace(',','.'));if(h>3)h=h/100;
-  const alturaDisplay=h>0?h.toFixed(2).replace('.',',')+' m':'não informada';
-  const pesoRows=pesoLog.slice().reverse().map((p,i,arr)=>{const prev=arr[i+1];let dTxt='—',dColor='var(--text2)';if(prev){const d=+(p.val-prev.val).toFixed(1);dTxt=(d<=0?'▼ ':'▲ ')+Math.abs(d);dColor=d<=0?'var(--green)':'#E24B4A';}const imcP=calcIMC(p.val,corpoData.altura);const imcInfoP=imcClass(imcP,corpoData.sexo);return `<tr><td>${p.date}</td><td><strong>${p.val} kg</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td><td style="color:${imcInfoP.color};font-size:11px">${imcP||'—'} ${imcP?imcInfoP.label:''}</td><td><button class="btn btn-red btn-xs" onclick="deletePeso('${p.date}')">✕</button></td></tr>`;}).join('');
-  const gordRows=gorduraLog.slice().reverse().map((p,i,arr)=>{const prev=arr[i+1];let dTxt='—',dColor='var(--text2)';if(prev){const d=+(p.val-prev.val).toFixed(1);dTxt=(d<=0?'▼ ':'▲ ')+Math.abs(d)+'%';dColor=d<=0?'var(--green)':'#E24B4A';}const mmKg=last?+(last*(1-p.val/100)).toFixed(1):'—';return `<tr><td>${p.date}</td><td><strong>${p.val}%</strong></td><td style="color:${dColor};font-weight:700">${dTxt}</td><td style="color:var(--green)">${mmKg} kg</td><td><button class="btn btn-red btn-xs" onclick="deleteGordura('${p.date}')">✕</button></td></tr>`;}).join('');
+  const ad=h>0?h.toFixed(2).replace('.',',')+' m':'não informada';
+  const pr=pesoLog.slice().reverse().map((p,i,arr)=>{const prev=arr[i+1];let dt='—',dc='var(--text2)';if(prev){const d=+(p.val-prev.val).toFixed(1);dt=(d<=0?'▼ ':'▲ ')+Math.abs(d);dc=d<=0?'var(--green)':'#E24B4A';}const ip=calcIMC(p.val,corpoData.altura);const iip=imcClass(ip,corpoData.sexo);return `<tr><td>${p.date}</td><td><strong>${p.val} kg</strong></td><td style="color:${dc};font-weight:700">${dt}</td><td style="color:${iip.color};font-size:11px">${ip||'—'} ${ip?iip.label:''}</td><td><button class="btn btn-red btn-xs" onclick="deletePeso('${p.date}')">✕</button></td></tr>`;}).join('');
+  const gr=gorduraLog.slice().reverse().map((p,i,arr)=>{const prev=arr[i+1];let dt='—',dc='var(--text2)';if(prev){const d=+(p.val-prev.val).toFixed(1);dt=(d<=0?'▼ ':'▲ ')+Math.abs(d)+'%';dc=d<=0?'var(--green)':'#E24B4A';}const mk=last?+(last*(1-p.val/100)).toFixed(1):'—';return `<tr><td>${p.date}</td><td><strong>${p.val}%</strong></td><td style="color:${dc};font-weight:700">${dt}</td><td style="color:var(--green)">${mk} kg</td><td><button class="btn btn-red btn-xs" onclick="deleteGordura('${p.date}')">✕</button></td></tr>`;}).join('');
   document.getElementById('corpo-full').innerHTML=`
-    <div class="card"><div class="card-title">💪 Meu corpo</div><div class="chips"><span class="chip chip-b">Peso: ${last!=null?last+' kg':'—'}</span><span class="chip chip-o">${diff!==null?(diff<=0?'▼ Perda':'▲ Ganho')+': '+Math.abs(diff)+' kg':'—'}</span><span class="chip chip-g">Meta: −${metaKg} kg até ${metaFimFmt}</span>${diasRestantes!==null?`<span class="chip ${diasRestantes<0?'chip-r':'chip-b'}">${diasRestantes>=0?diasRestantes+' dias restantes':'Prazo encerrado'}</span>`:''}</div>${pesoLog.length?`<div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:''}</div>
-    <div class="card"><div class="card-title">✏️ Editar meta de peso</div><div class="grid3"><div class="field" style="margin:0"><label>Perda desejada (kg)</label><input class="inp" type="number" id="meta-kg" value="${metaPeso.kg||10}" min="1" max="100" step="0.5" inputmode="decimal"/></div><div class="field" style="margin:0"><label>Prazo final</label><input class="inp" type="date" id="meta-data" value="${metaPeso.dataFim||''}"/></div><div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%;padding:8px" onclick="saveMeta2()">Salvar meta</button></div></div></div>
-    <div class="card"><div class="card-title">📐 Altura e sexo</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">Informe sua altura em metros (ex: 1,80) e sexo.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div class="field" style="margin:0"><label>Altura (metros)</label><input class="inp" type="number" id="inp-altura" value="${corpoData.altura||''}" placeholder="Ex: 1.80" step="0.01" min="1" max="2.5" inputmode="decimal"/></div><div class="field" style="margin:0"><label>Sexo</label><select class="inp" id="inp-sexo"><option value="" ${!corpoData.sexo?'selected':''}>Não informado</option><option value="M" ${corpoData.sexo==='M'?'selected':''}>Masculino</option><option value="F" ${corpoData.sexo==='F'?'selected':''}>Feminino</option></select></div></div><button class="btn btn-sm btn-outline" onclick="saveAlturaData()">Salvar</button>${corpoData.altura?`<div style="font-size:13px;color:var(--text2);margin-top:8px">Altura: <strong style="color:var(--text)">${alturaDisplay}</strong>${corpoData.sexo?` · <strong style="color:var(--text)">${corpoData.sexo==='M'?'Masculino':'Feminino'}</strong>`:''}</div>`:''}</div>
-    <div class="card"><div class="card-title">📊 Métricas atuais</div><div class="grid2"><div class="stat-box"><div class="stat-val">${imc||'—'}</div><div class="stat-label">IMC</div><div class="stat-sub" style="color:${imcInfo.color}">${imcInfo.label}</div></div><div class="stat-box"><div class="stat-val">${lastGordura!=null?lastGordura+'%':'—'}</div><div class="stat-label">Gordura corporal</div><div class="stat-sub" style="color:${gordInfo?gordInfo.color:'var(--text2)'}">${gordInfo?gordInfo.label:(gorduraKg!=null?gorduraKg+' kg':'—')}</div></div><div class="stat-box"><div class="stat-val">${massaMagraKg!=null?massaMagraKg+' kg':'—'}</div><div class="stat-label">Massa magra</div><div class="stat-sub" style="color:var(--green)">${massaMagraPct!=null?massaMagraPct+'%':'calculado auto'}</div></div><div class="stat-box"><div class="stat-val">${pct}%</div><div class="stat-label">Meta concluída</div><div class="stat-sub" style="color:var(--text2)">−${metaKg} kg</div></div></div>${imc?`<div class="imc-box" style="background:${imcInfo.bg};margin-top:10px"><div class="imc-val" style="color:${imcInfo.color}">${imc}</div><div class="imc-label" style="color:${imcInfo.color}">${imcInfo.label}</div><div class="imc-range">Saudável: 18,5–${corpoData.sexo==='M'?'25,0 (masc.)':'24,0 (fem.)'} · Altura: ${alturaDisplay}</div></div>`:''}</div>
-    <div class="card"><div class="card-title">⚖️ Registrar peso hoje</div><div class="row"><input class="inp" type="number" id="pinput2" placeholder="Peso (kg) ex: 92.5" step="0.1" min="30" max="300" inputmode="decimal"/><button class="btn" onclick="addPeso('pinput2')">Registrar</button></div>${pesoLog.length?`<div style="margin-top:12px"><div class="table-wrap"><table style="min-width:0"><thead><tr><th>Data</th><th>Peso</th><th>Variação</th><th>IMC</th><th></th></tr></thead><tbody>${pesoRows}</tbody></table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>
-    <div class="card"><div class="card-title">🔥 Registrar % gordura corporal</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A massa magra é calculada automaticamente.</div><div class="row"><input class="inp" type="number" id="ginput" placeholder="% gordura (ex: 28.5)" step="0.1" min="1" max="70" inputmode="decimal"/><button class="btn" onclick="addGordura('ginput')">Registrar</button></div>${gorduraLog.length?`<div style="margin-top:12px"><div class="table-wrap"><table style="min-width:0"><thead><tr><th>Data</th><th>Gordura</th><th>Variação</th><th>Massa magra</th><th></th></tr></thead><tbody>${gordRows}</tbody></table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>`;
+    <div class="card"><div class="card-title">💪 Meu corpo</div><div class="chips"><span class="chip chip-b">Peso: ${last!=null?last+' kg':'—'}</span><span class="chip chip-o">${diff!==null?(diff<=0?'▼ Perda':'▲ Ganho')+': '+Math.abs(diff)+' kg':'—'}</span><span class="chip chip-g">Meta: −${metaKg} kg até ${mf}</span>${diasRestantes!==null?`<span class="chip ${diasRestantes<0?'chip-r':'chip-b'}">${diasRestantes>=0?diasRestantes+' dias restantes':'Prazo encerrado'}</span>`:''}</div>${pesoLog.length?`<div class="bar-wrap"><div class="bar-labels"><span>Início: ${first} kg</span><span>${pct}% da meta</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`:''}</div>
+    <div class="card"><div class="card-title">✏️ Editar meta de peso</div><div class="grid3"><div class="field" style="margin:0"><label>Perda (kg)</label><input class="inp" type="number" id="meta-kg" value="${metaPeso.kg||10}" min="1" max="100" step="0.5" inputmode="decimal"/></div><div class="field" style="margin:0"><label>Prazo final</label><input class="inp" type="date" id="meta-data" value="${metaPeso.dataFim||''}"/></div><div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%;padding:8px" onclick="saveMeta2()">Salvar</button></div></div></div>
+    <div class="card"><div class="card-title">📐 Altura e sexo</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div class="field" style="margin:0"><label>Altura (metros)</label><input class="inp" type="number" id="inp-altura" value="${corpoData.altura||''}" placeholder="Ex: 1.80" step="0.01" min="1" max="2.5" inputmode="decimal"/></div><div class="field" style="margin:0"><label>Sexo</label><select class="inp" id="inp-sexo"><option value="" ${!corpoData.sexo?'selected':''}>Não informado</option><option value="M" ${corpoData.sexo==='M'?'selected':''}>Masculino</option><option value="F" ${corpoData.sexo==='F'?'selected':''}>Feminino</option></select></div></div><button class="btn btn-sm btn-outline" onclick="saveAlturaData()">Salvar</button>${corpoData.altura?`<div style="font-size:13px;color:var(--text2);margin-top:8px">Altura: <strong>${ad}</strong>${corpoData.sexo?` · <strong>${corpoData.sexo==='M'?'Masculino':'Feminino'}</strong>`:''}</div>`:''}</div>
+    <div class="card"><div class="card-title">📊 Métricas atuais</div><div class="grid2"><div class="stat-box"><div class="stat-val">${imc||'—'}</div><div class="stat-label">IMC</div><div class="stat-sub" style="color:${ii.color}">${ii.label}</div></div><div class="stat-box"><div class="stat-val">${lg!=null?lg+'%':'—'}</div><div class="stat-label">Gordura corporal</div><div class="stat-sub" style="color:${gi?gi.color:'var(--text2)'}">${gi?gi.label:(gKg!=null?gKg+' kg':'—')}</div></div><div class="stat-box"><div class="stat-val">${mmKg!=null?mmKg+' kg':'—'}</div><div class="stat-label">Massa magra</div><div class="stat-sub" style="color:var(--green)">${mmPct!=null?mmPct+'%':'auto'}</div></div><div class="stat-box"><div class="stat-val">${pct}%</div><div class="stat-label">Meta concluída</div><div class="stat-sub" style="color:var(--text2)">−${metaKg} kg</div></div></div>${imc?`<div class="imc-box" style="background:${ii.bg};margin-top:10px"><div class="imc-val" style="color:${ii.color}">${imc}</div><div class="imc-label" style="color:${ii.color}">${ii.label}</div><div class="imc-range">Saudável: 18,5–${corpoData.sexo==='M'?'25,0':'24,0'} · Altura: ${ad}</div></div>`:''}</div>
+    <div class="card"><div class="card-title">⚖️ Registrar peso hoje</div><div class="row"><input class="inp" type="number" id="pinput2" placeholder="Peso (kg) ex: 92.5" step="0.1" min="30" max="300" inputmode="decimal"/><button class="btn" onclick="addPeso('pinput2')">Registrar</button></div>${pesoLog.length?`<div style="margin-top:12px"><div class="table-wrap"><table style="min-width:0"><thead><tr><th>Data</th><th>Peso</th><th>Variação</th><th>IMC</th><th></th></tr></thead><tbody>${pr}</tbody></table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>
+    <div class="card"><div class="card-title">🔥 Registrar % gordura corporal</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A massa magra é calculada automaticamente.</div><div class="row"><input class="inp" type="number" id="ginput" placeholder="% gordura (ex: 28.5)" step="0.1" min="1" max="70" inputmode="decimal"/><button class="btn" onclick="addGordura('ginput')">Registrar</button></div>${gorduraLog.length?`<div style="margin-top:12px"><div class="table-wrap"><table style="min-width:0"><thead><tr><th>Data</th><th>Gordura</th><th>Variação</th><th>Massa magra</th><th></th></tr></thead><tbody>${gr}</tbody></table></div></div>`:'<div style="font-size:13px;color:var(--text2);margin-top:8px">Nenhum registro ainda.</div>'}</div>`;
 }
 
 // ── TABS ─────────────────────────────────────────────────
-function renderTabs(){const gruposAtivos=grupos.filter(g=>{if(g.id==='todas')return true;return frentes.filter(f=>f.grupo===g.id).some(f=>(tasks[f.id]||[]).length>0);});document.getElementById('tabs').innerHTML=gruposAtivos.map(g=>{const cnt=g.id==='todas'?allTasksFlat().filter(t=>!t.done).length:frentes.filter(f=>f.grupo===g.id).reduce((a,f)=>a+(tasks[f.id]||[]).filter(t=>!t.done).length,0);return `<button class="tab ${g.id===activeGrupo?'active':''}" onclick="setTab('${g.id}')">${g.icon} ${g.label}${cnt>0?`<span class="tab-cnt">${cnt}</span>`:''}</button>`;}).join('');}
+function renderTabs(){const ga=grupos.filter(g=>{if(g.id==='todas')return true;return frentes.filter(f=>f.grupo===g.id).some(f=>(tasks[f.id]||[]).length>0);});document.getElementById('tabs').innerHTML=ga.map(g=>{const cnt=g.id==='todas'?allTasksFlat().filter(t=>!t.done).length:frentes.filter(f=>f.grupo===g.id).reduce((a,f)=>a+(tasks[f.id]||[]).filter(t=>!t.done).length,0);return `<button class="tab ${g.id===activeGrupo?'active':''}" onclick="setTab('${g.id}')">${g.icon} ${g.label}${cnt>0?`<span class="tab-cnt">${cnt}</span>`:''}</button>`;}).join('');}
 function setTab(gid){activeGrupo=gid;fbSet('grupo',gid);renderTabs();renderDash();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-red'));if(f==='late')btn.classList.add('on-red');else btn.classList.add('on');renderDash();}
 function toggleSort(){sortByDate=!sortByDate;document.getElementById('sort-btn').classList.toggle('on',sortByDate);renderDash();}
 function taskVis(t){const d=daysFrom(t.due);if(activeFilter==='pending')return !t.done;if(activeFilter==='done')return t.done;if(activeFilter==='alta')return t.p==='alta'&&!t.done;if(activeFilter==='late')return !t.done&&d!==null&&d<0;return true;}
 
 // ── RECORRÊNCIA ───────────────────────────────────────────
-function nextRecurrenceDate(dueDateStr,period){const d=parseLocalDate(dueDateStr);if(period==='diario')d.setDate(d.getDate()+1);else if(period==='semanal')d.setDate(d.getDate()+7);else if(period==='quinzenal')d.setDate(d.getDate()+15);else if(period==='mensal')d.setMonth(d.getMonth()+1);const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const dy=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dy}`;}
-function showUndoToast(taskText){const toast=document.getElementById('undo-toast');const label=document.getElementById('undo-toast-label');if(label)label.textContent=taskText||'';toast.classList.add('show');if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>dismissToast(),5000);}
+function nextRecDate(due,period){const d=parseLocalDate(due);if(period==='diario')d.setDate(d.getDate()+1);else if(period==='semanal')d.setDate(d.getDate()+7);else if(period==='quinzenal')d.setDate(d.getDate()+15);else if(period==='mensal')d.setMonth(d.getMonth()+1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function showUndoToast(txt){const t=document.getElementById('undo-toast');document.getElementById('undo-toast-label').textContent=txt||'';t.classList.add('show');if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(dismissToast,5000);}
 function dismissToast(){document.getElementById('undo-toast').classList.remove('show');undoState=null;if(undoTimer)clearTimeout(undoTimer);}
 function undoRecurrence(){if(!undoState)return;const t=(tasks[undoState.fid]||[]).find(t=>t.id===undoState.tid);if(!t)return;t.due=undoState.prevDue;t.recurrence.count=undoState.prevCount;t.recurrence.history=undoState.prevHistory;undoState=null;dismissToast();saveTasks();renderMetrics();renderTabs();renderDash();}
 
 // ── DASH ─────────────────────────────────────────────────
 function toggleTask(fid,tid){
   const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
-  const wasActive=t.recurrence&&t.recurrence.active;
-  if(!t.done&&wasActive){
+  if(!t.done&&t.recurrence&&t.recurrence.active){
     undoState={fid,tid,prevDue:t.due,prevCount:t.recurrence.count||0,prevHistory:[...(t.recurrence.history||[])]};
     if(!t.recurrence.history)t.recurrence.history=[];
     t.recurrence.history.push(new Date().toISOString().split('T')[0]);
     t.recurrence.count=(t.recurrence.count||0)+1;
-    t.due=nextRecurrenceDate(t.due,t.recurrence.period);
+    t.due=nextRecDate(t.due,t.recurrence.period);
     t.done=false;showUndoToast(t.text);
-  }else{t.done=!t.done;}
+  } else {t.done=!t.done;}
   saveTasks();renderMetrics();renderTabs();renderDash();
 }
 function toggleFrente(fid){const f=frentes.find(f=>f.id===fid);if(!f)return;f.open=!f.open;saveFrente();renderDash();}
@@ -719,39 +560,33 @@ function taskRowHtml(fid,t,showGrupo){
   const color=getFrenteColor(fid);const fr=frentes.find(f=>f.id===fid);const isOrphan=fid==='sem-subgrupo';
   return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
 }
-
 function sortTasks(arr){if(!sortByDate)return arr;return[...arr].sort((a,b)=>{const dA=a.due?parseLocalDate(a.due).getTime():Infinity;const dB=b.due?parseLocalDate(b.due).getTime():Infinity;if(dA!==dB)return dA-dB;return pOrd[a.p]-pOrd[b.p];});}
 
 function renderDash(){
   const el=document.getElementById('frentes-main');const isTodas=activeGrupo==='todas';
   if(isTodas&&sortByDate){const ts=sortTasks(allTasksFlat().filter(t=>taskVis(t)));if(!ts.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}el.innerHTML=`<div class="frente"><div class="tasks op">${ts.map(t=>taskRowHtml(t.fid,t,true)).join('')}</div></div>`;return;}
-  let frentesShow=isTodas?frentes:frentes.filter(f=>f.grupo===activeGrupo);frentesShow=frentesShow.filter(f=>(tasks[f.id]||[]).some(t=>taskVis(t)));
-  if(!frentesShow.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
-  el.innerHTML=frentesShow.map(frente=>{const g=grupos.find(g=>g.id===frente.grupo)||{label:'',color:'#888'};const color=g.color;let vt=(tasks[frente.id]||[]).filter(t=>taskVis(t));if(sortByDate)vt=sortTasks(vt);const tot=(tasks[frente.id]||[]).length;const dn=(tasks[frente.id]||[]).filter(t=>t.done).length;const pct=tot?Math.round(dn/tot*100):0;return `<div class="frente"><div class="fh" onclick="toggleFrente('${frente.id}')"><div class="fdot" style="background:${color}"></div><div style="flex:1;min-width:0"><div class="ftitle">${frente.title}</div>${isTodas?`<div class="fsubtitle">${g.label}</div>`:''}</div><span class="fpct">${pct}% · ${dn}/${tot}</span><span class="chev ${frente.open?'op':''}">▶</span></div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${color}"></div></div><div class="tasks ${frente.open?'op':''}">${vt.map(t=>taskRowHtml(frente.id,t,false)).join('')}</div></div>`;}).join('');
+  let fs=isTodas?frentes:frentes.filter(f=>f.grupo===activeGrupo);fs=fs.filter(f=>(tasks[f.id]||[]).some(t=>taskVis(t)));
+  if(!fs.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
+  el.innerHTML=fs.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:'',color:'#888'};const c=g.color;let vt=(tasks[f.id]||[]).filter(t=>taskVis(t));if(sortByDate)vt=sortTasks(vt);const tot=(tasks[f.id]||[]).length;const dn=(tasks[f.id]||[]).filter(t=>t.done).length;const pct=tot?Math.round(dn/tot*100):0;return `<div class="frente"><div class="fh" onclick="toggleFrente('${f.id}')"><div class="fdot" style="background:${c}"></div><div style="flex:1;min-width:0"><div class="ftitle">${f.title}</div>${isTodas?`<div class="fsubtitle">${g.label}</div>`:''}</div><span class="fpct">${pct}% · ${dn}/${tot}</span><span class="chev ${f.open?'op':''}">▶</span></div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${c}"></div></div><div class="tasks ${f.open?'op':''}">${vt.map(t=>taskRowHtml(f.id,t,false)).join('')}</div></div>`;}).join('');
 }
 
 // ── PLANILHA ─────────────────────────────────────────────
-function renderPlanFiltros(){
-  const gruposAtivos=grupos.filter(g=>g.id!=='todas'&&frentes.some(f=>f.grupo===g.id&&(tasks[f.id]||[]).length>0));
-  const temOrfas=(tasks['sem-subgrupo']||[]).length>0;
-  document.getElementById('plan-fg').innerHTML='<option value="">Todas as frentes</option>'+gruposAtivos.map(g=>`<optgroup label="${g.label}">${frentes.filter(f=>f.grupo===g.id).map(f=>`<option value="${f.id}">${f.title}</option>`).join('')}</optgroup>`).join('')+(temOrfas?'<option value="sem-subgrupo">⚠️ Sem categoria</option>':'');
-}
+function renderPlanFiltros(){const ga=grupos.filter(g=>g.id!=='todas'&&frentes.some(f=>f.grupo===g.id&&(tasks[f.id]||[]).length>0));const temO=(tasks['sem-subgrupo']||[]).length>0;document.getElementById('plan-fg').innerHTML='<option value="">Todas as frentes</option>'+ga.map(g=>`<optgroup label="${g.label}">${frentes.filter(f=>f.grupo===g.id).map(f=>`<option value="${f.id}">${f.title}</option>`).join('')}</optgroup>`).join('')+(temO?'<option value="sem-subgrupo">⚠️ Sem categoria</option>':'');}
 function renderPlan(){
-  const fid=document.getElementById('plan-fg').value;const sort=document.getElementById('plan-sort').value;
+  const fid=document.getElementById('plan-fg').value,sort=document.getElementById('plan-sort').value;
   let rows=allTasksFlat();if(fid)rows=rows.filter(r=>r.fid===fid);
   rows=[...rows].sort((a,b)=>{if(sort==='due'){if(!a.due&&!b.due)return(a.fgLabel+a.ftitle).localeCompare(b.fgLabel+b.ftitle);if(!a.due)return 1;if(!b.due)return -1;const dd=parseLocalDate(a.due)-parseLocalDate(b.due);return dd!==0?dd:pOrd[a.p]-pOrd[b.p];}const fg=(a.fgLabel+a.ftitle).localeCompare(b.fgLabel+b.ftitle);return fg!==0?fg:pOrd[a.p]-pOrd[b.p];});
   document.getElementById('plan-body').innerHTML=rows.map(t=>{
-    const d=daysFrom(t.due);let dStyle='';
-    if(t.due&&d<0)dStyle='color:var(--red-text);font-weight:700';else if(t.due&&d!==null&&d<=3)dStyle='color:var(--orange-text);font-weight:700';
-    const color=t.fColor||'#888';const isOrphan=t.fid==='sem-subgrupo';
-    const subOpts=frentes.filter(f=>f.id!=='sem-subgrupo').map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:''};return `<option value="${f.id}" ${t.fid===f.id?'selected':''}>${g.label} — ${f.title}</option>`;}).join('');
-    const subgrupoCell=isOrphan?`<select onchange="planMoveTask('${t.fid}','${t.id}',this.value)" style="width:100%;min-width:110px;font-size:11px;border-color:#BA7517"><option value="">⚠️ Sem categoria</option>${subOpts}</select>`:`<span class="tag" style="background:${color}22;color:${color}">${t.ftitle}</span>`;
-    return `<tr ${isOrphan?'style="background:#FAEEDA18"':''}><td style="text-align:center"><input type="checkbox" ${t.done?'checked':''} onchange="planToggle('${t.fid}','${t.id}',this.checked)" style="width:15px;height:15px;cursor:pointer"/></td><td><span class="tag" style="background:${color}22;color:${color}">${isOrphan?'⚠️ Sem frente':t.fgLabel}</span></td><td>${subgrupoCell}</td><td><input type="text" value="${(t.text||'').replace(/"/g,'&quot;')}" onblur="planEdit('${t.fid}','${t.id}','text',this.value)" style="min-width:130px"/></td><td><select onchange="planEdit('${t.fid}','${t.id}','p',this.value)" style="width:100%"><option value="alta" ${t.p==='alta'?'selected':''}>🔴 Alta</option><option value="media" ${t.p==='media'?'selected':''}>🟡 Média</option><option value="baixa" ${t.p==='baixa'?'selected':''}>🟢 Baixa</option></select></td><td style="${dStyle}"><input type="date" value="${t.due||''}" onchange="planEdit('${t.fid}','${t.id}','due',this.value)"/></td><td><input type="text" value="${(t.note||'').replace(/"/g,'&quot;')}" placeholder="—" onblur="planEdit('${t.fid}','${t.id}','note',this.value)" style="min-width:80px"/></td><td><div class="action-btns"><button class="btn btn-outline btn-xs" onclick="openEditTask('${t.fid}','${t.id}')">✏️</button><button class="btn btn-red btn-xs" onclick="deleteTask('${t.fid}','${t.id}')">✕</button></div></td></tr>`;
+    const d=daysFrom(t.due);let ds='';if(t.due&&d<0)ds='color:var(--red-text);font-weight:700';else if(t.due&&d!==null&&d<=3)ds='color:var(--orange-text);font-weight:700';
+    const c=t.fColor||'#888',isO=t.fid==='sem-subgrupo';
+    const sOpts=frentes.filter(f=>f.id!=='sem-subgrupo').map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:''};return `<option value="${f.id}" ${t.fid===f.id?'selected':''}>${g.label} — ${f.title}</option>`;}).join('');
+    const subCell=isO?`<select onchange="planMoveTask('${t.fid}','${t.id}',this.value)" style="width:100%;min-width:110px;font-size:11px;border-color:#BA7517"><option value="">⚠️ Sem categoria</option>${sOpts}</select>`:`<span class="tag" style="background:${c}22;color:${c}">${t.ftitle}</span>`;
+    return `<tr ${isO?'style="background:#FAEEDA18"':''}><td style="text-align:center"><input type="checkbox" ${t.done?'checked':''} onchange="planToggle('${t.fid}','${t.id}',this.checked)" style="width:15px;height:15px;cursor:pointer"/></td><td><span class="tag" style="background:${c}22;color:${c}">${isO?'⚠️':t.fgLabel}</span></td><td>${subCell}</td><td><input type="text" value="${(t.text||'').replace(/"/g,'&quot;')}" onblur="planEdit('${t.fid}','${t.id}','text',this.value)" style="min-width:130px"/></td><td><select onchange="planEdit('${t.fid}','${t.id}','p',this.value)" style="width:100%"><option value="alta" ${t.p==='alta'?'selected':''}>🔴 Alta</option><option value="media" ${t.p==='media'?'selected':''}>🟡 Média</option><option value="baixa" ${t.p==='baixa'?'selected':''}>🟢 Baixa</option></select></td><td style="${ds}"><input type="date" value="${t.due||''}" onchange="planEdit('${t.fid}','${t.id}','due',this.value)"/></td><td><input type="text" value="${(t.note||'').replace(/"/g,'&quot;')}" placeholder="—" onblur="planEdit('${t.fid}','${t.id}','note',this.value)" style="min-width:80px"/></td><td><div class="action-btns"><button class="btn btn-outline btn-xs" onclick="openEditTask('${t.fid}','${t.id}')">✏️</button><button class="btn btn-red btn-xs" onclick="deleteTask('${t.fid}','${t.id}')">✕</button></div></td></tr>`;
   }).join('');
 }
 function planToggle(fid,tid,checked){const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t.done=checked;saveTasks();renderMetrics();renderTabs();renderDash();}
 function planEdit(fid,tid,field,val){const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t[field]=val;saveTasks();renderMetrics();renderTabs();renderDash();}
-function planMoveTask(oldFid,tid,newFid){if(!newFid||oldFid===newFid)return;const oldList=tasks[oldFid]||[];const t=oldList.find(t=>t.id===tid);if(!t)return;tasks[oldFid]=oldList.filter(t=>t.id!==tid);if(!tasks[newFid])tasks[newFid]=[];tasks[newFid].push(t);saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
+function planMoveTask(oldFid,tid,newFid){if(!newFid||oldFid===newFid)return;const ol=tasks[oldFid]||[];const t=ol.find(t=>t.id===tid);if(!t)return;tasks[oldFid]=ol.filter(t=>t.id!==tid);if(!tasks[newFid])tasks[newFid]=[];tasks[newFid].push(t);saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
 function deleteTask(fid,tid){if(!confirm('Excluir esta tarefa?'))return;tasks[fid]=(tasks[fid]||[]).filter(t=>t.id!==tid);saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -765,17 +600,17 @@ function renderTaskModal(c,fid,tid){
   const ed=editingTask?((tasks[fid]||[]).find(t=>t.id===tid)||null):null;
   const rec=ed&&ed.recurrence?ed.recurrence:{active:false,period:'semanal',count:0};
   const fOpts=frentes.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:''};const sel=(ed&&fid===f.id)||(!ed&&activeGrupo!=='todas'&&f.grupo===activeGrupo)?'selected':'';return `<option value="${f.id}" ${sel}>${g.label} — ${f.title}</option>`;}).join('');
-  c.innerHTML=`<h3>${ed?'Editar tarefa':'Nova tarefa'}</h3><div class="field"><label>Tarefa *</label><input id="m-text" value="${ed?ed.text||'':''}" placeholder="Descrição da tarefa"/></div><div class="field"><label>Subgrupo (frente) *</label><select id="m-frente">${fOpts}</select></div><div class="field"><label>Prioridade</label><select id="m-p"><option value="alta" ${ed&&ed.p==='alta'?'selected':''}>🔴 Alta (urgente)</option><option value="media" ${!ed||ed.p==='media'?'selected':''}>🟡 Média</option><option value="baixa" ${ed&&ed.p==='baixa'?'selected':''}>🟢 Baixa</option></select></div><div class="field"><label>Data de vencimento</label><input type="date" id="m-due" value="${ed&&ed.due?ed.due:''}"/></div><div class="field"><label>Nota</label><input id="m-note" value="${ed?ed.note||'':''}" placeholder="Opcional"/></div><div class="field"><label>Repetir tarefa?</label><select id="m-rec-active" onchange="toggleRecFields()"><option value="0" ${!rec.active?'selected':''}>Não repetir</option><option value="1" ${rec.active?'selected':''}>Sim, repetir</option></select></div><div id="rec-fields" style="display:${rec.active?'block':'none'}"><div class="recurrence-box"><div class="field" style="margin-bottom:8px"><label>Período</label><select id="m-rec-period"><option value="diario" ${rec.period==='diario'?'selected':''}>Diário</option><option value="semanal" ${rec.period==='semanal'?'selected':''}>Semanal</option><option value="quinzenal" ${rec.period==='quinzenal'?'selected':''}>Quinzenal</option><option value="mensal" ${rec.period==='mensal'?'selected':''}>Mensal</option></select></div><div style="font-size:12px;color:var(--text2)">A tarefa aparecerá com o ícone ↻ e avançará automaticamente ao ser concluída.</div></div></div><div class="modal-btns"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveTaskModal()">Salvar</button></div>`;
+  c.innerHTML=`<h3>${ed?'Editar tarefa':'Nova tarefa'}</h3><div class="field"><label>Tarefa *</label><input id="m-text" value="${ed?ed.text||'':''}" placeholder="Descrição da tarefa"/></div><div class="field"><label>Subgrupo *</label><select id="m-frente">${fOpts}</select></div><div class="field"><label>Prioridade</label><select id="m-p"><option value="alta" ${ed&&ed.p==='alta'?'selected':''}>🔴 Alta</option><option value="media" ${!ed||ed.p==='media'?'selected':''}>🟡 Média</option><option value="baixa" ${ed&&ed.p==='baixa'?'selected':''}>🟢 Baixa</option></select></div><div class="field"><label>Data de vencimento</label><input type="date" id="m-due" value="${ed&&ed.due?ed.due:''}"/></div><div class="field"><label>Nota</label><input id="m-note" value="${ed?ed.note||'':''}" placeholder="Opcional"/></div><div class="field"><label>Repetir tarefa?</label><select id="m-rec-active" onchange="toggleRecFields()"><option value="0" ${!rec.active?'selected':''}>Não repetir</option><option value="1" ${rec.active?'selected':''}>Sim, repetir</option></select></div><div id="rec-fields" style="display:${rec.active?'block':'none'}"><div class="recurrence-box"><div class="field" style="margin-bottom:8px"><label>Período</label><select id="m-rec-period"><option value="diario" ${rec.period==='diario'?'selected':''}>Diário</option><option value="semanal" ${rec.period==='semanal'?'selected':''}>Semanal</option><option value="quinzenal" ${rec.period==='quinzenal'?'selected':''}>Quinzenal</option><option value="mensal" ${rec.period==='mensal'?'selected':''}>Mensal</option></select></div><div style="font-size:12px;color:var(--text2)">Ao concluir, a tarefa avança automaticamente para a próxima data.</div></div></div><div class="modal-btns"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveTaskModal()">Salvar</button></div>`;
   setTimeout(()=>document.getElementById('m-text').focus(),80);
 }
-function toggleRecFields(){const v=document.getElementById('m-rec-active').value;document.getElementById('rec-fields').style.display=v==='1'?'block':'none';}
+function toggleRecFields(){document.getElementById('rec-fields').style.display=document.getElementById('m-rec-active').value==='1'?'block':'none';}
 function saveTaskModal(){
   const text=(document.getElementById('m-text').value||'').trim();if(!text){alert('Digite o nome da tarefa');return;}
-  const fid=document.getElementById('m-frente').value;const p=document.getElementById('m-p').value;const due=document.getElementById('m-due').value||'';const note=(document.getElementById('m-note').value||'').trim();
-  const recActive=document.getElementById('m-rec-active').value==='1';const recPeriod=document.getElementById('m-rec-period')?document.getElementById('m-rec-period').value:'semanal';
+  const fid=document.getElementById('m-frente').value,p=document.getElementById('m-p').value,due=document.getElementById('m-due').value||'',note=(document.getElementById('m-note').value||'').trim();
+  const recActive=document.getElementById('m-rec-active').value==='1',recPeriod=document.getElementById('m-rec-period')?document.getElementById('m-rec-period').value:'semanal';
   if(recActive&&!due){alert('Tarefas recorrentes precisam de uma data de vencimento.');return;}
   const recurrence=recActive?{active:true,period:recPeriod,count:0,history:[]}:null;
-  if(editingTask){if(editingTask.fid!==fid){const oldList=tasks[editingTask.fid]||[];const t=oldList.find(t=>t.id===editingTask.tid);tasks[editingTask.fid]=oldList.filter(t=>t.id!==editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;if(!tasks[fid])tasks[fid]=[];tasks[fid].push(t);}}else{const t=(tasks[fid]||[]).find(t=>t.id===editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;}}}
+  if(editingTask){if(editingTask.fid!==fid){const ol=tasks[editingTask.fid]||[];const t=ol.find(t=>t.id===editingTask.tid);tasks[editingTask.fid]=ol.filter(t=>t.id!==editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;if(!tasks[fid])tasks[fid]=[];tasks[fid].push(t);}}else{const t=(tasks[fid]||[]).find(t=>t.id===editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;}}}
   else{if(!tasks[fid])tasks[fid]=[];tasks[fid].push({id:uid(),text,done:false,p,due,note,recurrence});}
   saveTasks();closeModal();renderMetrics();renderTabs();renderDash();if(activeView==='plan')renderPlan();
 }
@@ -784,23 +619,22 @@ function saveTaskModal(){
 function renderConfigModal(c){c.innerHTML=`<h3>⚙️ Configurações</h3><div id="config-section"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"><button class="btn btn-outline" onclick="renderGruposConfig()">🎨 Gerenciar frentes</button><button class="btn btn-outline" onclick="renderFrentesConfig()">📁 Gerenciar subgrupos</button></div><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button></div>`;}
 
 function renderGruposConfig(){
-  const c=document.getElementById('config-section');const gruposEdit=grupos.filter(g=>g.id!=='todas');
-  c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderConfigModal(document.getElementById('modal-content'))">← Voltar</button><strong style="font-size:14px">Frentes</strong></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor de cada frente é herdada por todos os seus subgrupos.</div><div id="grupos-list">${gruposEdit.map(g=>`<div class="frente-item"><div class="color-swatch" style="background:${g.color}"></div><span style="font-size:14px;flex:1">${g.icon} ${g.label}</span><button class="btn btn-outline btn-xs" onclick="startEditGrupo('${g.id}')">Editar</button><button class="btn btn-red btn-xs" onclick="deleteGrupo('${g.id}')">✕</button></div>`).join('')}</div><div class="section-sep" style="margin-top:14px">Nova frente</div><div class="field"><label>Nome</label><input id="ng-name" placeholder="Ex: Projetos"/></div><div class="field"><label>Ícone (emoji)</label><input id="ng-icon" placeholder="Ex: 🚀" maxlength="2"/></div><div class="field"><label>Cor</label><div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0">${CORES.map((cor,i)=>`<div class="coloropt" onclick="selectColorGrupo('${cor}')" id="ngco-${i}" style="background:${cor};${i===0?'border-color:var(--text)':''}"></div>`).join('')}</div></div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addGrupo()">+ Criar frente</button><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;
+  const c=document.getElementById('config-section'),ge=grupos.filter(g=>g.id!=='todas');
+  c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderConfigModal(document.getElementById('modal-content'))">← Voltar</button><strong>Frentes</strong></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor de cada frente é herdada por todos os seus subgrupos.</div><div>${ge.map(g=>`<div class="frente-item"><div class="color-swatch" style="background:${g.color}"></div><span style="font-size:14px;flex:1">${g.icon} ${g.label}</span><button class="btn btn-outline btn-xs" onclick="startEditGrupo('${g.id}')">Editar</button><button class="btn btn-red btn-xs" onclick="deleteGrupo('${g.id}')">✕</button></div>`).join('')}</div><div class="section-sep" style="margin-top:14px">Nova frente</div><div class="field"><label>Nome</label><input id="ng-name" placeholder="Ex: Projetos"/></div><div class="field"><label>Ícone (emoji)</label><input id="ng-icon" placeholder="Ex: 🚀" maxlength="2"/></div><div class="field"><label>Cor</label><div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0">${CORES.map((cor,i)=>`<div class="coloropt" onclick="selectColorGrupo('${cor}')" id="ngco-${i}" style="background:${cor};${i===0?'border-color:var(--text)':''}"></div>`).join('')}</div></div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addGrupo()">+ Criar frente</button><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;
   selectedColor=CORES[0];
 }
-function startEditGrupo(gid){editingGrupoId=gid;const g=grupos.find(g=>g.id===gid);const c=document.getElementById('config-section');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderGruposConfig()">← Voltar</button><strong style="font-size:14px">Editar frente: ${g.label}</strong></div><div class="field"><label>Nome</label><input id="eg-name" value="${g.label}"/></div><div class="field"><label>Ícone (emoji)</label><input id="eg-icon" value="${g.icon}" maxlength="2"/></div><div class="field"><label>Cor (todos os subgrupos herdarão)</label><div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0">${CORES.map((cor,i)=>{const sel=cor===g.color;return `<div class="coloropt" onclick="selectColorEdit('${cor}','eg')" id="egco-${i}" style="background:${cor};${sel?'border-color:var(--text)':''}"></div>`;}).join('')}</div></div><div class="modal-btns"><button class="btn btn-red" onclick="deleteGrupo('${gid}')">Excluir</button><button class="btn" onclick="saveGrupo()">Salvar</button></div>`;selectedColor=g.color;}
-function selectColorEdit(cor,prefix){selectedColor=cor;document.querySelectorAll(`[id^="${prefix}co-"]`).forEach((el,i)=>{el.style.borderColor=CORES[i]===cor?'var(--text)':'transparent';});}
+function startEditGrupo(gid){editingGrupoId=gid;const g=grupos.find(g=>g.id===gid);const c=document.getElementById('config-section');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderGruposConfig()">← Voltar</button><strong>Editar: ${g.label}</strong></div><div class="field"><label>Nome</label><input id="eg-name" value="${g.label}"/></div><div class="field"><label>Ícone</label><input id="eg-icon" value="${g.icon}" maxlength="2"/></div><div class="field"><label>Cor</label><div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0">${CORES.map((cor,i)=>`<div class="coloropt" onclick="selectColorEdit('${cor}','eg')" id="egco-${i}" style="background:${cor};${cor===g.color?'border-color:var(--text)':''}"></div>`).join('')}</div></div><div class="modal-btns"><button class="btn btn-red" onclick="deleteGrupo('${gid}')">Excluir</button><button class="btn" onclick="saveGrupo()">Salvar</button></div>`;selectedColor=g.color;}
+function selectColorEdit(cor,p){selectedColor=cor;document.querySelectorAll(`[id^="${p}co-"]`).forEach((el,i)=>{el.style.borderColor=CORES[i]===cor?'var(--text)':'transparent';});}
 function selectColorGrupo(cor){selectColorEdit(cor,'ngco');}
-function addGrupo(){const name=(document.getElementById('ng-name').value||'').trim();const icon=(document.getElementById('ng-icon').value||'📌').trim();if(!name){alert('Digite o nome da frente');return;}const ng={id:'g'+uid(),label:name,icon,color:selectedColor};grupos.push(ng);saveGrupos();renderGruposConfig();renderTabs();renderDash();}
+function addGrupo(){const name=(document.getElementById('ng-name').value||'').trim(),icon=(document.getElementById('ng-icon').value||'📌').trim();if(!name){alert('Digite o nome');return;}grupos.push({id:'g'+uid(),label:name,icon,color:selectedColor});saveGrupos();renderGruposConfig();renderTabs();renderDash();}
 function saveGrupo(){const g=grupos.find(g=>g.id===editingGrupoId);if(!g)return;g.label=(document.getElementById('eg-name').value||g.label).trim();g.icon=(document.getElementById('eg-icon').value||g.icon).trim();g.color=selectedColor;saveGrupos();renderGruposConfig();renderTabs();renderDash();if(activeView==='plan')renderPlan();}
-function deleteGrupo(gid){const subs=frentes.filter(f=>f.grupo===gid);const totalTasks=subs.reduce((a,f)=>a+(tasks[f.id]||[]).length,0);if(!confirm(`Excluir esta frente?${subs.length>0?`\n\n${subs.length} subgrupo(s) e ${totalTasks} tarefa(s) serão mantidos sem frente definida.`:''}`))return;ensureOrphanGroup();subs.forEach(f=>{f.grupo='sem-frente';});saveFrente();grupos=grupos.filter(g=>g.id!==gid);saveGrupos();renderGruposConfig();renderTabs();renderDash();}
+function deleteGrupo(gid){const subs=frentes.filter(f=>f.grupo===gid),tot=subs.reduce((a,f)=>a+(tasks[f.id]||[]).length,0);if(!confirm(`Excluir esta frente?${subs.length>0?`\n\n${subs.length} subgrupo(s) e ${tot} tarefa(s) ficarão sem frente.`:''}`))return;ensureOrphanGroup();subs.forEach(f=>{f.grupo='sem-frente';});saveFrente();grupos=grupos.filter(g=>g.id!==gid);saveGrupos();renderGruposConfig();renderTabs();renderDash();}
 
-function renderFrentesConfig(){const c=document.getElementById('config-section');const gruposEdit=grupos.filter(g=>g.id!=='todas');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderConfigModal(document.getElementById('modal-content'))">← Voltar</button><strong style="font-size:14px">Subgrupos</strong></div><div id="frentes-list">${frentes.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:'',color:'#888'};return `<div class="frente-item"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div><span style="font-size:11px;color:var(--text2);width:65px;flex-shrink:0">${g.label}</span><span style="flex:1;font-size:13px">${f.title}</span><button class="btn btn-outline btn-xs" onclick="startEditFrente('${f.id}')">Editar</button><button class="btn btn-red btn-xs" onclick="deleteFrente('${f.id}')">✕</button></div>`;}).join('')}</div><div class="section-sep" style="margin-top:14px">Novo subgrupo</div><div class="field"><label>Nome do subgrupo</label><input id="nf-name" placeholder="Ex: Meditação"/></div><div class="field"><label>Frente (grupo maior)</label><select id="nf-grupo">${gruposEdit.map(g=>`<option value="${g.id}">${g.icon} ${g.label}</option>`).join('')}</select></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor será herdada automaticamente da frente escolhida.</div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addFrente()">+ Criar subgrupo</button><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;}
-function startEditFrente(fid){editingFrenteId=fid;const f=frentes.find(f=>f.id===fid);const gruposEdit=grupos.filter(g=>g.id!=='todas');const c=document.getElementById('config-section');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderFrentesConfig()">← Voltar</button><strong style="font-size:14px">Editar subgrupo</strong></div><div class="field"><label>Nome</label><input id="ef-name" value="${f.title}"/></div><div class="field"><label>Frente (grupo maior)</label><select id="ef-grupo">${gruposEdit.map(g=>`<option value="${g.id}" ${f.grupo===g.id?'selected':''}>${g.icon} ${g.label}</option>`).join('')}</select></div><div class="modal-btns"><button class="btn btn-outline" onclick="renderFrentesConfig()">Cancelar</button><button class="btn" onclick="saveFrente2()">Salvar</button></div>`;}
+function renderFrentesConfig(){const c=document.getElementById('config-section'),ge=grupos.filter(g=>g.id!=='todas');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderConfigModal(document.getElementById('modal-content'))">← Voltar</button><strong>Subgrupos</strong></div><div>${frentes.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:'',color:'#888'};return `<div class="frente-item"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div><span style="font-size:11px;color:var(--text2);width:65px;flex-shrink:0">${g.label}</span><span style="flex:1;font-size:13px">${f.title}</span><button class="btn btn-outline btn-xs" onclick="startEditFrente('${f.id}')">Editar</button><button class="btn btn-red btn-xs" onclick="deleteFrente('${f.id}')">✕</button></div>`;}).join('')}</div><div class="section-sep" style="margin-top:14px">Novo subgrupo</div><div class="field"><label>Nome</label><input id="nf-name" placeholder="Ex: Meditação"/></div><div class="field"><label>Frente (grupo maior)</label><select id="nf-grupo">${ge.map(g=>`<option value="${g.id}">${g.icon} ${g.label}</option>`).join('')}</select></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor é herdada da frente escolhida.</div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addFrente()">+ Criar subgrupo</button><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;}
+function startEditFrente(fid){editingFrenteId=fid;const f=frentes.find(f=>f.id===fid),ge=grupos.filter(g=>g.id!=='todas'),c=document.getElementById('config-section');c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderFrentesConfig()">← Voltar</button><strong>Editar subgrupo</strong></div><div class="field"><label>Nome</label><input id="ef-name" value="${f.title}"/></div><div class="field"><label>Frente</label><select id="ef-grupo">${ge.map(g=>`<option value="${g.id}" ${f.grupo===g.id?'selected':''}>${g.icon} ${g.label}</option>`).join('')}</select></div><div class="modal-btns"><button class="btn btn-outline" onclick="renderFrentesConfig()">Cancelar</button><button class="btn" onclick="saveFrente2()">Salvar</button></div>`;}
 function saveFrente2(){const f=frentes.find(f=>f.id===editingFrenteId);if(!f)return;f.title=(document.getElementById('ef-name').value||f.title).trim();f.grupo=document.getElementById('ef-grupo').value;saveFrente();renderFrentesConfig();renderTabs();renderDash();}
-function addFrente(){const name=(document.getElementById('nf-name').value||'').trim();const grupo=document.getElementById('nf-grupo').value;if(!name){alert('Digite o nome do subgrupo');return;}const nf={id:'f'+uid(),title:name,grupo,open:false};frentes.push(nf);tasks[nf.id]=[];saveFrente();saveTasks();renderFrentesConfig();renderTabs();renderDash();}
-function deleteFrente(fid){const cnt=(tasks[fid]||[]).length;if(!confirm(`Excluir este subgrupo?${cnt>0?`\n\n${cnt} tarefa(s) serão mantidas em "Sem subgrupo".`:''}`))return;if(cnt>0){ensureOrphanFrente();const orphanTasks=tasks['sem-subgrupo']||[];(tasks[fid]||[]).forEach(t=>orphanTasks.push(t));tasks['sem-subgrupo']=orphanTasks;}frentes=frentes.filter(f=>f.id!==fid);delete tasks[fid];saveFrente();saveTasks();renderFrentesConfig();renderMetrics();renderTabs();renderDash();}
-
+function addFrente(){const name=(document.getElementById('nf-name').value||'').trim(),grupo=document.getElementById('nf-grupo').value;if(!name){alert('Digite o nome');return;}const nf={id:'f'+uid(),title:name,grupo,open:false};frentes.push(nf);tasks[nf.id]=[];saveFrente();saveTasks();renderFrentesConfig();renderTabs();renderDash();}
+function deleteFrente(fid){const cnt=(tasks[fid]||[]).length;if(!confirm(`Excluir este subgrupo?${cnt>0?`\n\n${cnt} tarefa(s) serão mantidas em "Sem subgrupo".`:''}`))return;if(cnt>0){ensureOrphanFrente();(tasks[fid]||[]).forEach(t=>(tasks['sem-subgrupo']=tasks['sem-subgrupo']||[]).push(t));}frentes=frentes.filter(f=>f.id!==fid);delete tasks[fid];saveFrente();saveTasks();renderFrentesConfig();renderMetrics();renderTabs();renderDash();}
 function ensureOrphanGroup(){if(!grupos.find(g=>g.id==='sem-frente')){grupos.push({id:'sem-frente',label:'Sem frente',icon:'⚠️',color:'#888780'});saveGrupos();}}
 function ensureOrphanFrente(){ensureOrphanGroup();if(!frentes.find(f=>f.id==='sem-subgrupo')){frentes.push({id:'sem-subgrupo',title:'Sem subgrupo',grupo:'sem-frente',open:true});saveFrente();}if(!tasks['sem-subgrupo'])tasks['sem-subgrupo']=[];}
 </script>
