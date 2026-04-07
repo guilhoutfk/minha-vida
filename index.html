@@ -205,7 +205,6 @@ td input:focus,td select:focus{border-color:var(--green)}
 <div class="hdr">
   <div class="hdr-inner">
     <div class="hdr-left">
-      <img src="logo.png" alt="logo" style="width:32px;height:32px;object-fit:contain;flex-shrink:0"/>
       <div class="hdr-title">Minha Vida</div>
       <div class="hdr-meta">
         <div class="hdr-date" id="hdr-date"></div>
@@ -302,18 +301,26 @@ const db=firebase.firestore();
 
 function loginGoogle(){
   const provider=new firebase.auth.GoogleAuthProvider();
-  // signInWithRedirect funciona em todos os browsers incluindo Safari no iPhone
-  auth.signInWithRedirect(provider).catch(e=>alert('Erro: '+e.message));
+  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if(isSafari){
+    auth.signInWithRedirect(provider).catch(e=>alert('Erro: '+e.message));
+  } else {
+    auth.signInWithPopup(provider).catch(e=>alert('Erro: '+e.message));
+  }
 }
 function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
 
-// Processa o resultado do redirect ao carregar a página
+// Necessário para processar o retorno do redirect no Safari/iPhone
 auth.getRedirectResult().then(result=>{
-  // resultado tratado pelo onAuthStateChanged
+  if(result&&result.user){
+    // Login via redirect bem sucedido — onAuthStateChanged cuida do resto
+  }
 }).catch(e=>{
-  if(e.code!=='auth/no-current-user')console.warn('Redirect error:',e);
+  if(e.code&&e.code!=='auth/no-current-user'&&e.code!=='auth/null-user'){
+    console.warn('Redirect error:',e);
+  }
 });
 
 async function fbSet(key,value){
