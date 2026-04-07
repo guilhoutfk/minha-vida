@@ -724,12 +724,29 @@ function taskVis(t){
 }
 
 // ── DASH ─────────────────────────────────────────────────
+function nextRecurrenceDate(dueDateStr, period){
+  const d=new Date(dueDateStr);
+  if(period==='diario')   d.setDate(d.getDate()+1);
+  else if(period==='semanal')  d.setDate(d.getDate()+7);
+  else if(period==='quinzenal')d.setDate(d.getDate()+15);
+  else if(period==='mensal')   d.setMonth(d.getMonth()+1);
+  return d.toISOString().split('T')[0];
+}
+
 function toggleTask(fid,tid){
   const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
-  t.done=!t.done;
-  // Se tem recorrência e foi marcada como concluída, reinicia após delay
-  if(t.done&&t.recurrence&&t.recurrence.active){
+  const wasActive=t.recurrence&&t.recurrence.active;
+
+  if(!t.done&&wasActive){
+    // Marcando como concluída: registra histórico, avança data e reseta para pendente
+    if(!t.recurrence.history)t.recurrence.history=[];
+    t.recurrence.history.push(new Date().toISOString().split('T')[0]);
     t.recurrence.count=(t.recurrence.count||0)+1;
+    t.due=nextRecurrenceDate(t.due,t.recurrence.period);
+    // Não marca como done — já reseta direto
+    t.done=false;
+  } else {
+    t.done=!t.done;
   }
   saveTasks();renderMetrics();renderTabs();renderDash();
 }
@@ -749,6 +766,7 @@ function taskRowHtml(fid,t,showGrupo){
   }
   const color=getFrenteColor(fid);
   const fr=frentes.find(f=>f.id===fid);
+  const isOrphan=fid==='sem-subgrupo';
   return `<div class="task" onclick="toggleTask('${fid}','${t.id}')">
     <div class="tcheck ${t.done?'dn':''}"></div>
     <div class="tbody">
@@ -757,8 +775,9 @@ function taskRowHtml(fid,t,showGrupo){
       <div class="tmeta">
         <span class="pdot" style="background:${pColors[t.p]||'#888'}" title="${pLbl[t.p]||''}"></span>
         ${dtxt?`<span class="${dcls}">${dtxt}</span>`:''}
-        ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}</span>`:''}
-        ${showGrupo&&fr?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}
+        ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''}
+        ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''}
+        ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}
       </div>
     </div>
   </div>`;
@@ -959,7 +978,14 @@ function saveTaskModal(){
   const note=(document.getElementById('m-note').value||'').trim();
   const recActive=document.getElementById('m-rec-active').value==='1';
   const recPeriod=document.getElementById('m-rec-period')?document.getElementById('m-rec-period').value:'semanal';
-  const recurrence=recActive?{active:true,period:recPeriod,count:0}:null;
+
+  // Validação: recorrência exige data
+  if(recActive&&!due){
+    alert('Tarefas recorrentes precisam de uma data de vencimento.\nPor favor, defina uma data antes de ativar a repetição.');
+    return;
+  }
+
+  const recurrence=recActive?{active:true,period:recPeriod,count:0,history:[]}:null;
 
   if(editingTask){
     if(editingTask.fid!==fid){
@@ -1078,11 +1104,24 @@ function saveGrupo(){
 }
 
 function deleteGrupo(gid){
-  const hasSubs=frentes.some(f=>f.grupo===gid);
-  if(hasSubs){alert('Não é possível excluir uma frente que possui subgrupos. Mova ou exclua os subgrupos primeiro.');return;}
-  if(!confirm('Excluir esta frente?'))return;
+  const subs=frentes.filter(f=>f.grupo===gid);
+  const totalTasks=subs.reduce((a,f)=>a+(tasks[f.id]||[]).length,0);
+  let msg=`Excluir esta frente?`;
+  if(subs.length>0){
+    msg+=`\n\n${subs.length} subgrupo(s) e ${totalTasks} tarefa(s) serão mantidos, mas ficarão sem frente definida até que você os reatribua.`;
+  }
+  if(!confirm(msg))return;
+
+  // Garante que existe o grupo órfão
+  ensureOrphanGroup();
+
+  // Move subgrupos para o grupo órfão
+  subs.forEach(f=>{ f.grupo='sem-frente'; });
+  saveFrente();
+
   grupos=grupos.filter(g=>g.id!==gid);
   saveGrupos();renderGruposConfig();renderTabs();renderDash();
+  if(activeView==='plan')renderPlan();
 }
 
 // ── GERENCIAR SUBGRUPOS (frentes) ─────────────────────────
@@ -1157,10 +1196,41 @@ function addFrente(){
 
 function deleteFrente(fid){
   const cnt=(tasks[fid]||[]).length;
-  if(!confirm(`Excluir este subgrupo${cnt>0?` e suas ${cnt} tarefas`:''}?`))return;
-  frentes=frentes.filter(f=>f.id!==fid);delete tasks[fid];
+  let msg=`Excluir este subgrupo?`;
+  if(cnt>0){
+    msg+=`\n\n${cnt} tarefa(s) serão mantidas em "Sem subgrupo" até que você as reatribua.`;
+  }
+  if(!confirm(msg))return;
+
+  // Move tarefas para subgrupo órfão em vez de apagar
+  if(cnt>0){
+    ensureOrphanFrente();
+    const orphanTasks=tasks['sem-subgrupo']||[];
+    (tasks[fid]||[]).forEach(t=>orphanTasks.push(t));
+    tasks['sem-subgrupo']=orphanTasks;
+  }
+
+  frentes=frentes.filter(f=>f.id!==fid);
+  delete tasks[fid];
   saveFrente();saveTasks();
   renderFrentesConfig();renderMetrics();renderTabs();renderDash();
+  if(activeView==='plan')renderPlan();
+}
+
+// Garante que existe o grupo/subgrupo órfão
+function ensureOrphanGroup(){
+  if(!grupos.find(g=>g.id==='sem-frente')){
+    grupos.push({id:'sem-frente',label:'Sem frente',icon:'⚠️',color:'#888780'});
+    saveGrupos();
+  }
+}
+function ensureOrphanFrente(){
+  ensureOrphanGroup();
+  if(!frentes.find(f=>f.id==='sem-subgrupo')){
+    frentes.push({id:'sem-subgrupo',title:'Sem subgrupo',grupo:'sem-frente',open:true});
+    saveFrente();
+  }
+  if(!tasks['sem-subgrupo'])tasks['sem-subgrupo']=[];
 }
 
 // ── INIT ─────────────────────────────────────────────────
