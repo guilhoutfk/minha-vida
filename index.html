@@ -430,13 +430,46 @@ function getFrenteColor(fid){const f=frentes.find(f=>f.id===fid);if(!f)return'#8
 function allTasksFlat(){const rows=[];frentes.forEach(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:f.grupo,color:'#888'};(tasks[f.id]||[]).forEach(t=>rows.push({...t,fid:f.id,ftitle:f.title,fgrupo:f.grupo,fgLabel:g.label,fColor:g.color}));});return rows;}
 
 // ── AUTH STATE ────────────────────────────────────────────
+// Lê dados legados do localStorage antigo (chaves sem prefixo fb_)
+function getLegacy(key){
+  // Tenta chaves antigas usadas nas versões anteriores do app
+  const oldKeys={'grupos':'mv_grupos','frentes':'mv_frentes','tasks':'mv_tasks',
+    'peso':'mv_peso','gordura':'mv_gordura','corpo':'mv_corpo','meta':'mv_meta','grupo':'mv_grupo'};
+  try{return JSON.parse(localStorage.getItem(oldKeys[key]||key));}catch{return null;}
+}
+
+async function migrateFromLocalStorage(){
+  // Verifica se Firebase está vazio para este usuário
+  const snap=await db.collection('users').doc(currentUID).collection('data').doc('tasks').get().catch(()=>null);
+  if(snap&&snap.exists) return false; // Firebase já tem dados, não migra
+
+  // Tenta carregar dados legados
+  const legacyTasks=getLegacy('tasks');
+  if(!legacyTasks||Object.keys(legacyTasks).length===0) return false; // Nada para migrar
+
+  // Tem dados legados! Migra tudo para o Firebase
+  const keys=['grupos','frentes','tasks','peso','gordura','corpo','meta','grupo'];
+  let migrated=false;
+  for(const key of keys){
+    const val=getLegacy(key);
+    if(val!==null){
+      await fbSet(key,val);
+      migrated=true;
+    }
+  }
+  return migrated;
+}
+
 auth.onAuthStateChanged(async user=>{
   document.getElementById('login-screen').style.display='none';
   if(user){
     currentUID=user.uid;
     document.getElementById('loading-screen').style.display='flex';
 
-    // Carrega dados do Firebase
+    // Verifica se precisa migrar dados antigos do localStorage para o Firebase
+    const migrated = await migrateFromLocalStorage();
+
+    // Carrega dados do Firebase (agora já com os dados migrados se havia legado)
     grupos    = await fbGet('grupos')  || GRUPOS_DEF;
     frentes   = await fbGet('frentes') || FRENTES_DEF;
     tasks     = await fbGet('tasks')   || TASKS_DEF;
@@ -462,6 +495,12 @@ auth.onAuthStateChanged(async user=>{
 
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('app-root').style.display='block';
+
+    if(migrated){
+      // Avisa o usuário que os dados foram sincronizados
+      setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem! Agora funcionam em todos os dispositivos.'),500);
+    }
+
     renderMetrics();renderPesoCard();renderTabs();renderDash();
   } else {
     currentUID=null;
