@@ -299,11 +299,20 @@ const auth=firebase.auth();
 const db=firebase.firestore();
 
 function loginGoogle(){
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert('Erro: '+e.message));
+  const provider=new firebase.auth.GoogleAuthProvider();
+  // signInWithRedirect funciona em todos os browsers incluindo Safari no iPhone
+  auth.signInWithRedirect(provider).catch(e=>alert('Erro: '+e.message));
 }
 function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
+
+// Processa o resultado do redirect ao carregar a página
+auth.getRedirectResult().then(result=>{
+  // resultado tratado pelo onAuthStateChanged
+}).catch(e=>{
+  if(e.code!=='auth/no-current-user')console.warn('Redirect error:',e);
+});
 
 async function fbSet(key,value){
   if(!currentUID)return;
