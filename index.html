@@ -363,10 +363,42 @@ const TASKS_DEF={
 };
 
 // ── STATE ────────────────────────────────────────────────
-const APP_VERSION='5';
-if(S.get('mv_version')!==APP_VERSION){
-  ['mv_grupos','mv_frentes','mv_tasks'].forEach(k=>localStorage.removeItem(k));
-  S.set('mv_version',APP_VERSION);
+// Migração inteligente: preserva dados do usuário e só adiciona o que falta
+function migrateData(){
+  // Grupos: mantém os salvos, adiciona novos grupos padrão que ainda não existam
+  let savedGrupos=S.get('mv_grupos');
+  if(savedGrupos&&Array.isArray(savedGrupos)){
+    GRUPOS_DEF.forEach(def=>{
+      if(!savedGrupos.find(g=>g.id===def.id))savedGrupos.push(def);
+    });
+    S.set('mv_grupos',savedGrupos);
+  }
+  // Frentes: mantém as salvas, adiciona novas padrão que ainda não existam
+  let savedFrentes=S.get('mv_frentes');
+  if(savedFrentes&&Array.isArray(savedFrentes)){
+    FRENTES_DEF.forEach(def=>{
+      if(!savedFrentes.find(f=>f.id===def.id))savedFrentes.push(def);
+    });
+    S.set('mv_frentes',savedFrentes);
+  }
+  // Tasks: mantém as salvas, adiciona tarefas padrão de frentes novas
+  let savedTasks=S.get('mv_tasks');
+  if(savedTasks&&typeof savedTasks==='object'){
+    Object.keys(TASKS_DEF).forEach(fid=>{
+      if(savedTasks[fid]===undefined)savedTasks[fid]=TASKS_DEF[fid];
+    });
+    S.set('mv_tasks',savedTasks);
+  }
+  S.set('mv_version','6');
+}
+if(S.get('mv_version')!=='6'&&S.get('mv_version')!==null){
+  // Usuário já tem dados salvos de versão anterior — migra sem apagar
+  migrateData();
+} else if(S.get('mv_version')==='6'){
+  // Versão atual, não faz nada
+} else {
+  // Primeira vez (sem nada salvo) — só marca versão
+  S.set('mv_version','6');
 }
 
 let grupos    = S.get('mv_grupos')  || GRUPOS_DEF;
@@ -973,9 +1005,10 @@ function renderGruposConfig(){
     <div id="grupos-list">
       ${gruposEdit.map(g=>`
         <div class="frente-item">
-          <div class="color-swatch" style="background:${g.color}" onclick="startEditGrupo('${g.id}')"></div>
+          <div class="color-swatch" style="background:${g.color}"></div>
           <span style="font-size:14px;flex:1">${g.icon} ${g.label}</span>
-          <button class="btn btn-outline btn-xs" onclick="startEditGrupo('${g.id}')">Editar cor</button>
+          <button class="btn btn-outline btn-xs" onclick="startEditGrupo('${g.id}')">Editar</button>
+          <button class="btn btn-red btn-xs" onclick="deleteGrupo('${g.id}')">✕</button>
         </div>`).join('')}
     </div>
     <div class="section-sep" style="margin-top:14px">Nova frente</div>
@@ -986,7 +1019,8 @@ function renderGruposConfig(){
         ${CORES.map((cor,i)=>`<div class="coloropt" onclick="selectColorGrupo('${cor}')" id="ngco-${i}" style="background:${cor};${i===0?'border-color:var(--text)':''}"></div>`).join('')}
       </div>
     </div>
-    <button class="btn" style="width:100%;margin-bottom:8px" onclick="addGrupo()">+ Criar frente</button>`;
+    <button class="btn" style="width:100%;margin-bottom:8px" onclick="addGrupo()">+ Criar frente</button>
+    <button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;
   selectedColor=CORES[0];
 }
 
@@ -1078,7 +1112,8 @@ function renderFrentesConfig(){
       <select id="nf-grupo">${gruposEdit.map(g=>`<option value="${g.id}">${g.icon} ${g.label}</option>`).join('')}</select>
     </div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor será herdada automaticamente da frente escolhida.</div>
-    <button class="btn" style="width:100%;margin-bottom:8px" onclick="addFrente()">+ Criar subgrupo</button>`;
+    <button class="btn" style="width:100%;margin-bottom:8px" onclick="addFrente()">+ Criar subgrupo</button>
+    <button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;
 }
 
 function startEditFrente(fid){
