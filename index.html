@@ -388,7 +388,7 @@ const FRENTES_NOVOS=[
 ];
 
 // ── STATE ─────────────────────────────────────────────────
-let grupos=[],frentes=[],tasks={},pesoLog=[],gorduraLog=[],corpoData={altura:'',sexo:''},metaPeso={kg:10,dataFim:'2026-05-09'};
+let grupos=[],frentes=[],tasks={},pesoLog=[],gorduraLog=[],corpoData={altura:'',sexo:''},metaPeso={kg:'',dataFim:''};
 let activeGrupo='todas',activeFilter='all',sortByDate=false,activeView='dash';
 let editingTask=null,selectedColor='#1D9E75',editingFrenteId=null,editingGrupoId=null;
 let undoState=null,undoTimer=null;
@@ -447,7 +447,7 @@ auth.onAuthStateChanged(async user=>{
     pesoLog     = await fbGet('peso')    || [];
     gorduraLog  = await fbGet('gordura') || [];
     corpoData   = await fbGet('corpo')   || {altura:'',sexo:''};
-    metaPeso    = await fbGet('meta')    || {kg:10,dataFim:'2026-05-09'};
+    metaPeso    = await fbGet('meta')    || {kg:'', dataFim:''};
     activeGrupo = await fbGet('grupo')   || 'todas';
 
     // Verifica se é realmente novo usuário:
