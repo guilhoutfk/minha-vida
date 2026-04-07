@@ -38,13 +38,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hdr{background:linear-gradient(135deg,#0F6E56,#1D9E75 60%,#5DCAA5);padding:16px 16px 20px;color:white;position:sticky;top:0;z-index:100}
 /* PC: cabeçalho mais compacto */
 @media(min-width:768px){
-  .hdr{padding:8px 16px 10px}
-  .hdr-title{font-size:17px}
-  .hdr-date{font-size:11px;margin-top:1px}
-  .hdr-user{font-size:10px}
-  body{padding-bottom:0}
-  .bnav{display:none}
-  .main{padding-top:10px}
+  .hdr{padding:8px 16px 10px !important}
+  .hdr-title{font-size:17px !important}
+  .hdr-date{font-size:11px !important;margin-top:1px !important}
+  .hdr-user{font-size:10px !important}
+  body{padding-bottom:0 !important}
+  .bnav{display:none !important}
+  .main{padding-top:10px !important}
 }
 .hdr-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hdr-title{font-size:20px;font-weight:700}
@@ -205,6 +205,19 @@ td input:focus,td select:focus{border-color:var(--green)}
   <div style="font-size:14px;color:var(--text2)">Carregando seus dados...</div>
 </div>
 
+<!-- ONBOARDING -->
+<div id="onboarding-screen" style="display:none;min-height:100vh;background:var(--bg);padding:0 0 2rem">
+  <div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);padding:24px 20px;color:white;text-align:center">
+    <div style="font-size:36px;margin-bottom:8px">🌱</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px">Bem-vindo ao Minha Vida!</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.85)">Escolha as frentes e subgrupos para começar seu hub</div>
+  </div>
+  <div style="max-width:600px;margin:0 auto;padding:16px" id="onboarding-body"></div>
+  <div style="max-width:600px;margin:0 auto;padding:0 16px">
+    <button onclick="finishOnboarding()" class="btn" style="width:100%;padding:14px;font-size:16px">Criar meu hub →</button>
+  </div>
+</div>
+
 <!-- APP PRINCIPAL -->
 <div id="app-root">
 
@@ -334,28 +347,29 @@ function confirmLogout(){
 // ── STORAGE (Firebase + localStorage cache) ───────────────
 let currentUID = null;
 
-async function fbSet(key, value){
-  localStorage.setItem('mv_'+key, JSON.stringify(value));
-  if(currentUID){
-    try{
-      await db.collection('users').doc(currentUID).collection('data').doc(key).set({v: JSON.stringify(value)});
-    }catch(e){ console.warn('Firebase write error:', e); }
-  }
-}
-
 async function fbGet(key){
-  // Tenta Firebase primeiro, fallback para cache local
   if(currentUID){
     try{
       const snap = await db.collection('users').doc(currentUID).collection('data').doc(key).get();
       if(snap.exists){
         const val = JSON.parse(snap.data().v);
-        localStorage.setItem('mv_'+key, JSON.stringify(val));
+        localStorage.setItem('fb_'+currentUID+'_'+key, JSON.stringify(val));
         return val;
       }
     }catch(e){ console.warn('Firebase read error:', e); }
+    // Fallback: cache local específico deste usuário
+    try{ return JSON.parse(localStorage.getItem('fb_'+currentUID+'_'+key)); }catch{ return null; }
   }
-  try{ return JSON.parse(localStorage.getItem('mv_'+key)); }catch{ return null; }
+  return null;
+}
+
+async function fbSet(key, value){
+  if(currentUID){
+    localStorage.setItem('fb_'+currentUID+'_'+key, JSON.stringify(value));
+    try{
+      await db.collection('users').doc(currentUID).collection('data').doc(key).set({v: JSON.stringify(value)});
+    }catch(e){ console.warn('Firebase write error:', e); }
+  }
 }
 
 // ── DEFAULTS ─────────────────────────────────────────────
@@ -439,34 +453,119 @@ const recPeriodLbl={diario:'Diário',semanal:'Semanal',quinzenal:'Quinzenal',men
 function getFrenteColor(fid){const f=frentes.find(f=>f.id===fid);if(!f)return'#888';const g=grupos.find(g=>g.id===f.grupo);return g?g.color:'#888';}
 function allTasksFlat(){const rows=[];frentes.forEach(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:f.grupo,color:'#888'};(tasks[f.id]||[]).forEach(t=>rows.push({...t,fid:f.id,ftitle:f.title,fgrupo:f.grupo,fgLabel:g.label,fColor:g.color}));});return rows;}
 
+// ── ONBOARDING DATA ───────────────────────────────────────
+const ONBOARDING_SUGESTOES=[
+  {grupoId:'saude', subs:['Acompanhamento médico','Alimentação & dieta','Atividade física','Saúde mental','Exames & consultas']},
+  {grupoId:'trabalho', subs:['Projetos em andamento','Reuniões & agenda','Desenvolvimento profissional','Finanças do negócio']},
+  {grupoId:'familia', subs:['Filhos','Cônjuge / relacionamento','Pais & parentes','Eventos & datas especiais']},
+  {grupoId:'infra', subs:['Casa & reformas','Carro & transporte','Compras & serviços','Documentos & burocracia']},
+  {grupoId:'financeiro', subs:['Orçamento pessoal','Investimentos','Dívidas & pagamentos','Cartões de crédito']},
+  {grupoId:'pessoal', subs:['Rotina & hábitos','Objetivos pessoais','Leituras & estudos','Lazer & hobbies']},
+  {grupoId:'lazer', subs:['Viagens planejadas','Entretenimento','Esportes & atividades']},
+  {grupoId:'estudos', subs:['Cursos em andamento','Leituras','Certificações','Idiomas']},
+  {grupoId:'esportes', subs:['Treinos','Competições','Equipamentos','Metas físicas']},
+  {grupoId:'viagens', subs:['Viagens planejadas','Destinos sonhados','Documentos de viagem','Orçamento de viagem']},
+];
+
+function renderOnboarding(){
+  const g=grupos.filter(g=>g.id!=='todas');
+  document.getElementById('onboarding-body').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--text2)">Selecione o que deseja organizar:</div>
+      <button onclick="toggleAllOnboarding()" id="btn-select-all" class="btn btn-outline btn-sm">Selecionar todos</button>
+    </div>
+    ${ONBOARDING_SUGESTOES.map(s=>{
+      const gr=g.find(x=>x.id===s.grupoId);
+      if(!gr)return'';
+      return `<div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer" onclick="toggleGrupoOnboarding('${gr.id}')">
+          <input type="checkbox" id="og-${gr.id}" checked style="width:16px;height:16px;cursor:pointer" onchange="syncGrupoCheck('${gr.id}')"/>
+          <div style="width:12px;height:12px;border-radius:50%;background:${gr.color};flex-shrink:0"></div>
+          <span style="font-size:15px;font-weight:600">${gr.icon} ${gr.label}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-left:26px" id="subs-${gr.id}">
+          ${s.subs.map((sub,i)=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="os-${gr.id}-${i}" checked style="width:15px;height:15px;cursor:pointer"/>
+            ${sub}
+          </label>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="font-size:12px;color:var(--text2);text-align:center;margin-top:8px">Você pode adicionar ou remover frentes e subgrupos depois nas ⚙️ Configurações</div>`;
+}
+
+function toggleGrupoOnboarding(gid){
+  const cb=document.getElementById('og-'+gid);
+  cb.checked=!cb.checked;
+  syncGrupoCheck(gid);
+}
+function syncGrupoCheck(gid){
+  const cb=document.getElementById('og-'+gid);
+  const subs=document.getElementById('subs-'+gid);
+  if(subs)subs.style.opacity=cb.checked?'1':'0.4';
+}
+function toggleAllOnboarding(){
+  const btn=document.getElementById('btn-select-all');
+  const allChecked=ONBOARDING_SUGESTOES.every(s=>document.getElementById('og-'+s.grupoId)&&document.getElementById('og-'+s.grupoId).checked);
+  const newState=!allChecked;
+  btn.textContent=newState?'Desmarcar todos':'Selecionar todos';
+  ONBOARDING_SUGESTOES.forEach(s=>{
+    const cb=document.getElementById('og-'+s.grupoId);
+    if(cb){cb.checked=newState;syncGrupoCheck(s.grupoId);}
+    s.subs.forEach((_,i)=>{const sc=document.getElementById(`os-${s.grupoId}-${i}`);if(sc)sc.checked=newState;});
+  });
+}
+
+async function finishOnboarding(){
+  // Monta frentes e tasks baseado nas seleções
+  const novasFrentes=[];
+  const novasTasks={};
+  ONBOARDING_SUGESTOES.forEach(s=>{
+    const grupoAtivo=document.getElementById('og-'+s.grupoId);
+    if(!grupoAtivo||!grupoAtivo.checked)return;
+    s.subs.forEach((sub,i)=>{
+      const subCb=document.getElementById(`os-${s.grupoId}-${i}`);
+      if(!subCb||!subCb.checked)return;
+      const fid='f'+uid();
+      novasFrentes.push({id:fid,title:sub,grupo:s.grupoId,open:false});
+      novasTasks[fid]=[];
+    });
+  });
+
+  frentes=novasFrentes;
+  tasks=novasTasks;
+  await saveFrente();
+  await saveTasks();
+  await fbSet('onboarded','true');
+
+  document.getElementById('onboarding-screen').style.display='none';
+  document.getElementById('app-root').style.display='block';
+  renderMetrics();renderPesoCard();renderTabs();renderDash();
+}
+
 // ── AUTH STATE ────────────────────────────────────────────
 // Lê dados legados do localStorage antigo (chaves sem prefixo fb_)
 function getLegacy(key){
-  // Tenta chaves antigas usadas nas versões anteriores do app
   const oldKeys={'grupos':'mv_grupos','frentes':'mv_frentes','tasks':'mv_tasks',
     'peso':'mv_peso','gordura':'mv_gordura','corpo':'mv_corpo','meta':'mv_meta','grupo':'mv_grupo'};
-  try{return JSON.parse(localStorage.getItem(oldKeys[key]||key));}catch{return null;}
+  try{
+    const val=localStorage.getItem(oldKeys[key])||localStorage.getItem('mv_'+key);
+    return val?JSON.parse(val):null;
+  }catch{return null;}
 }
 
 async function migrateFromLocalStorage(){
-  // Verifica se Firebase está vazio para este usuário
   const snap=await db.collection('users').doc(currentUID).collection('data').doc('tasks').get().catch(()=>null);
-  if(snap&&snap.exists) return false; // Firebase já tem dados, não migra
-
-  // Tenta carregar dados legados
+  if(snap&&snap.exists) return false;
   const legacyTasks=getLegacy('tasks');
-  if(!legacyTasks||Object.keys(legacyTasks).length===0) return false; // Nada para migrar
-
-  // Tem dados legados! Migra tudo para o Firebase
+  if(!legacyTasks||Object.keys(legacyTasks).length===0) return false;
   const keys=['grupos','frentes','tasks','peso','gordura','corpo','meta','grupo'];
   let migrated=false;
   for(const key of keys){
     const val=getLegacy(key);
-    if(val!==null){
-      await fbSet(key,val);
-      migrated=true;
-    }
+    if(val!==null){await fbSet(key,val);migrated=true;}
   }
+  await fbSet('onboarded','true'); // usuário legado não precisa de onboarding
   return migrated;
 }
 
@@ -476,45 +575,51 @@ auth.onAuthStateChanged(async user=>{
     currentUID=user.uid;
     document.getElementById('loading-screen').style.display='flex';
 
-    // Verifica se precisa migrar dados antigos do localStorage para o Firebase
+    // Verifica se precisa migrar dados antigos
     const migrated = await migrateFromLocalStorage();
 
-    // Carrega dados do Firebase (agora já com os dados migrados se havia legado)
+    // Verifica se já fez onboarding
+    const onboardedSnap=await db.collection('users').doc(currentUID).collection('data').doc('onboarded').get().catch(()=>null);
+    const jaFezOnboarding=onboardedSnap&&onboardedSnap.exists;
+
+    // Carrega dados do Firebase
     grupos    = await fbGet('grupos')  || GRUPOS_DEF;
-    frentes   = await fbGet('frentes') || FRENTES_DEF;
-    tasks     = await fbGet('tasks')   || TASKS_DEF;
+    frentes   = await fbGet('frentes') || [];
+    tasks     = await fbGet('tasks')   || {};
     pesoLog   = await fbGet('peso')    || [];
     gorduraLog= await fbGet('gordura') || [];
     corpoData = await fbGet('corpo')   || {altura:'',sexo:''};
     metaPeso  = await fbGet('meta')    || {kg:10,dataFim:'2026-05-09'};
     activeGrupo = await fbGet('grupo') || 'todas';
 
-    // Migração: adiciona novos grupos/frentes padrão se não existirem
+    // Garante todos os grupos padrão
     let changed=false;
     GRUPOS_DEF.forEach(def=>{if(!grupos.find(g=>g.id===def.id)){grupos.push(def);changed=true;}});
     if(changed)saveGrupos();
-    changed=false;
-    FRENTES_DEF.forEach(def=>{if(!frentes.find(f=>f.id===def.id)){frentes.push(def);changed=true;}});
-    if(changed)saveFrente();
 
-    // UI
+    // UI do usuário
     document.getElementById('hdr-user').textContent=user.displayName||user.email;
     const avatar=document.getElementById('user-avatar');
     if(user.photoURL){avatar.src=user.photoURL;avatar.style.display='block';}
     document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-
     document.getElementById('loading-screen').style.display='none';
-    document.getElementById('app-root').style.display='block';
 
-    if(migrated){
-      // Avisa o usuário que os dados foram sincronizados
-      setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem! Agora funcionam em todos os dispositivos.'),500);
+    if(!jaFezOnboarding){
+      // Novo usuário — mostra onboarding
+      document.getElementById('onboarding-screen').style.display='block';
+      renderOnboarding();
+    } else {
+      // Usuário existente — vai direto para o app
+      document.getElementById('app-root').style.display='block';
+      if(migrated){
+        setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
+      }
+      renderMetrics();renderPesoCard();renderTabs();renderDash();
     }
-
-    renderMetrics();renderPesoCard();renderTabs();renderDash();
   } else {
     currentUID=null;
     document.getElementById('loading-screen').style.display='none';
+    document.getElementById('onboarding-screen').style.display='none';
     document.getElementById('app-root').style.display='none';
     document.getElementById('login-screen').style.display='flex';
   }
