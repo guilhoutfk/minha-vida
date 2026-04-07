@@ -161,15 +161,33 @@ td input:focus,td select:focus{border-color:var(--green)}
 </head>
 <body>
 
+<!-- TELA DE LOGIN -->
+<div id="login-screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:linear-gradient(135deg,#0F6E56,#1D9E75)">
+  <div style="background:white;border-radius:16px;padding:2rem;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+    <div style="font-size:48px;margin-bottom:12px">🌱</div>
+    <div style="font-size:24px;font-weight:700;color:#111827;margin-bottom:8px">Minha Vida</div>
+    <div style="font-size:14px;color:#6b7280;margin-bottom:32px">Seu hub pessoal de metas e organização</div>
+    <button onclick="loginGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px;border:1.5px solid #e5e7eb;border-radius:10px;background:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111827">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20"/>
+      Entrar com Google
+    </button>
+    <div style="font-size:12px;color:#9ca3af;margin-top:16px">Seus dados ficam salvos na nuvem e sincronizados em todos os dispositivos</div>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="app-root" style="display:none">
 <div class="hdr">
   <div class="hdr-inner">
     <div>
       <div class="hdr-title">Minha Vida</div>
       <div class="hdr-date" id="hdr-date"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.7)" id="user-name"></div>
     </div>
     <div class="hdr-btns">
       <button class="btn btn-sm btn-ghost" onclick="openModal('task')">+ Tarefa</button>
       <button class="btn btn-sm btn-ghost" onclick="openModal('config')">⚙️</button>
+      <img id="user-photo" src="" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);cursor:pointer;display:none" onclick="logoutUser()" title="Sair"/>
     </div>
   </div>
 </div>
@@ -257,12 +275,89 @@ td input:focus,td select:focus{border-color:var(--green)}
   </div>
 </div>
 
-<script>
-// ── STORAGE ──────────────────────────────────────────────
-const S={
-  get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
-  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+<script type="module">
+// ── FIREBASE CONFIG ───────────────────────────────────────
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCo1YkVSRareO6yBeutj_8qW1GpYSe91mk",
+  authDomain: "mylifeonhub.firebaseapp.com",
+  projectId: "mylifeonhub",
+  storageBucket: "mylifeonhub.firebasestorage.app",
+  messagingSenderId: "43270735546",
+  appId: "1:43270735546:web:3328649df17b99eb906483"
 };
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const auth= getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ── LOGIN / LOGOUT ────────────────────────────────────────
+window.loginGoogle = async ()=>{
+  try{ await signInWithPopup(auth, provider); }
+  catch(e){ console.error(e); alert('Erro ao entrar: '+e.message); }
+};
+window.logoutUser = async ()=>{
+  if(!confirm('Sair da conta?'))return;
+  await signOut(auth);
+};
+
+// ── STORAGE (Firebase) ────────────────────────────────────
+let currentUID = null;
+let unsubscribe = null;
+
+function userDoc(key){ return doc(db, 'users', currentUID, 'data', key); }
+
+const S={
+  get:k=>{
+    // Fallback para localStorage durante carregamento
+    try{return JSON.parse(localStorage.getItem('fb_'+k))}catch{return null}
+  },
+  set:(k,v)=>{
+    localStorage.setItem('fb_'+k, JSON.stringify(v));
+    if(currentUID){
+      setDoc(userDoc(k),{value:JSON.stringify(v)}).catch(console.error);
+    }
+  }
+};
+
+async function loadFromFirebase(){
+  const keys=['mv_grupos','mv_frentes','mv_tasks','mv_peso','mv_gordura','mv_corpo','mv_meta','mv_grupo','mv_version'];
+  for(const k of keys){
+    try{
+      const snap=await getDoc(userDoc(k));
+      if(snap.exists()){
+        const val=JSON.parse(snap.data().value);
+        localStorage.setItem('fb_'+k, JSON.stringify(val));
+      }
+    }catch(e){ /* sem dados ainda */ }
+  }
+}
+
+// ── AUTH STATE ────────────────────────────────────────────
+onAuthStateChanged(auth, async user=>{
+  if(user){
+    currentUID=user.uid;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-root').style.display='block';
+    document.getElementById('user-name').textContent=user.displayName||user.email;
+    document.getElementById('user-photo').src=user.photoURL||'';
+    document.getElementById('user-photo').style.display=user.photoURL?'block':'none';
+
+    // Carrega dados do Firebase antes de iniciar o app
+    await loadFromFirebase();
+    window.initApp();
+  } else {
+    currentUID=null;
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app-root').style.display='none';
+  }
+});
+</script>
+
 
 // ── GRUPOS (frentes maiores com cor própria) ──────────────
 const GRUPOS_DEF=[
@@ -405,24 +500,15 @@ function migrateData(){
   }
   S.set('mv_version','6');
 }
-if(S.get('mv_version')!=='6'&&S.get('mv_version')!==null){
-  // Usuário já tem dados salvos de versão anterior — migra sem apagar
-  migrateData();
-} else if(S.get('mv_version')==='6'){
-  // Versão atual, não faz nada
-} else {
-  // Primeira vez (sem nada salvo) — só marca versão
-  S.set('mv_version','6');
-}
 
-let grupos    = S.get('mv_grupos')  || GRUPOS_DEF;
-let frentes   = S.get('mv_frentes') || FRENTES_DEF;
-let tasks     = S.get('mv_tasks')   || TASKS_DEF;
-let pesoLog   = S.get('mv_peso')    || [];
-let gorduraLog= S.get('mv_gordura') || [];
-let corpoData = S.get('mv_corpo')   || {altura:'',sexo:''};
-let metaPeso  = S.get('mv_meta')    || {kg:10,dataFim:'2026-05-09'};
-let activeGrupo  = S.get('mv_grupo') || 'todas';
+let grupos    = [];
+let frentes   = [];
+let tasks     = {};
+let pesoLog   = [];
+let gorduraLog= [];
+let corpoData = {altura:'',sexo:''};
+let metaPeso  = {kg:10,dataFim:'2026-05-09'};
+let activeGrupo  = 'todas';
 let activeFilter = 'all';
 let sortByDate   = false;
 let activeView   = 'dash';
@@ -1308,8 +1394,25 @@ function ensureOrphanFrente(){
 }
 
 // ── INIT ─────────────────────────────────────────────────
-document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-renderMetrics();renderPesoCard();renderTabs();renderDash();
+window.initApp = function(){
+  // Recarrega state do localStorage (já populado pelo Firebase)
+  grupos    = S.get('mv_grupos')  || GRUPOS_DEF;
+  frentes   = S.get('mv_frentes') || FRENTES_DEF;
+  tasks     = S.get('mv_tasks')   || TASKS_DEF;
+  pesoLog   = S.get('mv_peso')    || [];
+  gorduraLog= S.get('mv_gordura') || [];
+  corpoData = S.get('mv_corpo')   || {altura:'',sexo:''};
+  metaPeso  = S.get('mv_meta')    || {kg:10,dataFim:'2026-05-09'};
+  activeGrupo = S.get('mv_grupo') || 'todas';
+
+  // Migração se necessário
+  if(S.get('mv_version')!=='6'&&S.get('mv_version')!==null) migrateData();
+  else if(!S.get('mv_version')) S.set('mv_version','6');
+
+  document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  renderMetrics();renderPesoCard();renderTabs();renderDash();
+};
 </script>
+</div><!-- /app-root -->
 </body>
 </html>
