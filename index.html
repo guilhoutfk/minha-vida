@@ -154,6 +154,9 @@ td input:focus,td select:focus{border-color:var(--green)}
 .view.active{display:block}
 .color-swatch{width:20px;height:20px;border-radius:50%;display:inline-block;flex-shrink:0;cursor:pointer;border:2px solid transparent}
 .recurrence-box{background:var(--surface2);border-radius:var(--radius-sm);padding:10px;margin-top:8px}
+.toast{position:fixed;bottom:84px;left:16px;right:16px;transform:none;background:#111827;color:white;border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:500;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,0.25);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;transform:translateY(8px)}
+.toast.show{opacity:1;pointer-events:all;transform:translateY(0)}
+.toast-btn{background:var(--green);color:white;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -240,6 +243,17 @@ td input:focus,td select:focus{border-color:var(--green)}
   <div class="modal">
     <div class="modal-handle"></div>
     <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="undo-toast">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-size:12px;color:rgba(255,255,255,0.7)">Tarefa recorrente avançada</span>
+    <span id="undo-toast-label" style="font-size:13px;font-weight:600"></span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="toast-btn" onclick="undoRecurrence()">↩ Desfazer</button>
+    <button onclick="dismissToast()" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;padding:0 4px;line-height:1">×</button>
   </div>
 </div>
 
@@ -724,7 +738,7 @@ function taskVis(t){
 }
 
 // ── DASH ─────────────────────────────────────────────────
-function nextRecurrenceDate(dueDateStr, period){
+function nextRecurrenceDate(dueDateStr,period){
   const d=new Date(dueDateStr);
   if(period==='diario')   d.setDate(d.getDate()+1);
   else if(period==='semanal')  d.setDate(d.getDate()+7);
@@ -733,18 +747,50 @@ function nextRecurrenceDate(dueDateStr, period){
   return d.toISOString().split('T')[0];
 }
 
+let undoState=null;
+let undoTimer=null;
+
+function showUndoToast(taskText){
+  const toast=document.getElementById('undo-toast');
+  const label=document.getElementById('undo-toast-label');
+  if(label)label.textContent=taskText||'';
+  toast.classList.add('show');
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(()=>dismissToast(),5000);
+}
+
+function dismissToast(){
+  document.getElementById('undo-toast').classList.remove('show');
+  undoState=null;
+  if(undoTimer)clearTimeout(undoTimer);
+}
+
+function undoRecurrence(){
+  if(!undoState)return;
+  const t=(tasks[undoState.fid]||[]).find(t=>t.id===undoState.tid);
+  if(!t)return;
+  t.due=undoState.prevDue;
+  t.recurrence.count=undoState.prevCount;
+  t.recurrence.history=undoState.prevHistory;
+  undoState=null;
+  dismissToast();
+  saveTasks();renderMetrics();renderTabs();renderDash();
+}
+
 function toggleTask(fid,tid){
   const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
   const wasActive=t.recurrence&&t.recurrence.active;
 
   if(!t.done&&wasActive){
-    // Marcando como concluída: registra histórico, avança data e reseta para pendente
+    // Guarda estado anterior para desfazer
+    undoState={fid,tid,prevDue:t.due,prevCount:t.recurrence.count||0,prevHistory:[...(t.recurrence.history||[])]};
+    // Registra histórico, avança data e reseta para pendente
     if(!t.recurrence.history)t.recurrence.history=[];
     t.recurrence.history.push(new Date().toISOString().split('T')[0]);
     t.recurrence.count=(t.recurrence.count||0)+1;
     t.due=nextRecurrenceDate(t.due,t.recurrence.period);
-    // Não marca como done — já reseta direto
     t.done=false;
+    showUndoToast(t.text);
   } else {
     t.done=!t.done;
   }
@@ -865,10 +911,20 @@ function renderPlan(){
     if(t.due&&d<0)dStyle='color:var(--red-text);font-weight:700';
     else if(t.due&&d!==null&&d<=3)dStyle='color:var(--orange-text);font-weight:700';
     const color=t.fColor||'#888';
-    return `<tr>
+    const isOrphan=t.fid==='sem-subgrupo';
+    // Opções de subgrupos para o select
+    const subOpts=frentes.map(f=>{
+      const g=grupos.find(g=>g.id===f.grupo)||{label:''};
+      return `<option value="${f.id}" ${t.fid===f.id?'selected':''}>${g.label} — ${f.title}</option>`;
+    }).join('');
+    return `<tr ${isOrphan?'style="background:#FAEEDA22"':''}>
       <td style="text-align:center"><input type="checkbox" ${t.done?'checked':''} onchange="planToggle('${t.fid}','${t.id}',this.checked)" style="width:15px;height:15px;cursor:pointer"/></td>
       <td><span class="tag" style="background:${color}22;color:${color}">${t.fgLabel}</span></td>
-      <td><span class="tag" style="background:${color}22;color:${color}">${t.ftitle}</span></td>
+      <td>
+        <select onchange="planMoveTask('${t.fid}','${t.id}',this.value)" style="width:100%;min-width:120px;font-size:11px">
+          ${subOpts}
+        </select>
+      </td>
       <td><input type="text" value="${(t.text||'').replace(/"/g,'&quot;')}" onblur="planEdit('${t.fid}','${t.id}','text',this.value)" style="min-width:130px"/></td>
       <td>
         <select onchange="planEdit('${t.fid}','${t.id}','p',this.value)" style="width:100%">
@@ -894,6 +950,16 @@ function planToggle(fid,tid,checked){
 function planEdit(fid,tid,field,val){
   const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t[field]=val;
   saveTasks();renderMetrics();renderTabs();renderDash();
+}
+function planMoveTask(oldFid,tid,newFid){
+  if(oldFid===newFid)return;
+  const oldList=tasks[oldFid]||[];
+  const t=oldList.find(t=>t.id===tid);
+  if(!t)return;
+  tasks[oldFid]=oldList.filter(t=>t.id!==tid);
+  if(!tasks[newFid])tasks[newFid]=[];
+  tasks[newFid].push(t);
+  saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();
 }
 function deleteTask(fid,tid){
   if(!confirm('Excluir esta tarefa?'))return;
