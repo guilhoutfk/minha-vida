@@ -627,8 +627,52 @@ function saveTaskModal(){
 }
 
 // ── CONFIG ────────────────────────────────────────────────
-function renderConfigModal(c){c.innerHTML=`<h3>⚙️ Configurações</h3><div id="config-section"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"><button class="btn btn-outline" onclick="renderGruposConfig()">🎨 Gerenciar frentes</button><button class="btn btn-outline" onclick="renderFrentesConfig()">📁 Gerenciar subgrupos</button></div><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button></div>`;}
+function renderConfigModal(c){c.innerHTML=`<h3>⚙️ Configurações</h3><div id="config-section"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"><button class="btn btn-outline" onclick="renderGruposConfig()">🎨 Gerenciar frentes</button><button class="btn btn-outline" onclick="renderFrentesConfig()">📁 Gerenciar subgrupos</button></div><div style="background:#FAEEDA;border-radius:var(--radius-sm);padding:12px;margin-bottom:12px"><div style="font-size:13px;font-weight:600;color:#854F0B;margin-bottom:6px">🔄 Recuperar dados anteriores</div><div style="font-size:12px;color:#854F0B;margin-bottom:10px">Se você perdeu seus subgrupos e tarefas, tente recuperar do backup local do celular.</div><button class="btn btn-sm" style="background:#BA7517;width:100%" onclick="tryRecoverData()">Tentar recuperar dados</button></div><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button></div>`;}
 
+async function tryRecoverData(){
+  // Tenta todas as chaves possíveis do localStorage antigo
+  const possibleKeys=[
+    {tasks:'mv_tasks', frentes:'mv_frentes', grupos:'mv_grupos'},
+    {tasks:'fb_tasks', frentes:'fb_frentes', grupos:'fb_grupos'},
+  ];
+  
+  // Também tenta chaves com UID
+  if(currentUID){
+    possibleKeys.push({
+      tasks:'fb_'+currentUID+'_tasks',
+      frentes:'fb_'+currentUID+'_frentes',
+      grupos:'fb_'+currentUID+'_grupos'
+    });
+  }
+
+  let foundTasks=null, foundFrentes=null;
+
+  for(const keys of possibleKeys){
+    try{
+      const t=JSON.parse(localStorage.getItem(keys.tasks));
+      const f=JSON.parse(localStorage.getItem(keys.frentes));
+      // Verifica se tem tasks reais (com IDs antigos f0, f1, etc.)
+      if(t&&Object.keys(t).some(k=>k.startsWith('f')&&!k.startsWith('fb'))){
+        const temConteudo=Object.values(t).some(arr=>Array.isArray(arr)&&arr.length>0);
+        if(temConteudo){foundTasks=t;foundFrentes=f;break;}
+      }
+    }catch{}
+  }
+
+  if(!foundTasks){
+    alert('❌ Não encontrei dados anteriores no armazenamento local deste dispositivo.\n\nSe você estava usando o app no celular, tente abrir este app no celular e usar esta função lá.');
+    return;
+  }
+
+  const total=Object.values(foundTasks).reduce((a,arr)=>a+(arr.length||0),0);
+  if(!confirm(`✅ Encontrei ${total} tarefas no backup local!\n\nDeseja restaurar esses dados? Isso vai substituir as frentes e tarefas atuais.`))return;
+
+  // Restaura
+  if(foundFrentes&&foundFrentes.length>0){frentes=foundFrentes;await saveFrente();}
+  tasks=foundTasks;await saveTasks();
+  closeModal();renderMetrics();renderTabs();renderDash();
+  alert('✅ Dados restaurados com sucesso!');
+}
 function renderGruposConfig(){
   const c=document.getElementById('config-section'),ge=grupos.filter(g=>g.id!=='todas');
   c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button class="btn btn-outline btn-sm" onclick="renderConfigModal(document.getElementById('modal-content'))">← Voltar</button><strong>Frentes</strong></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">A cor de cada frente é herdada por todos os seus subgrupos.</div><div>${ge.map(g=>`<div class="frente-item"><div class="color-swatch" style="background:${g.color}"></div><span style="font-size:14px;flex:1">${g.icon} ${g.label}</span><button class="btn btn-outline btn-xs" onclick="startEditGrupo('${g.id}')">Editar</button><button class="btn btn-red btn-xs" onclick="deleteGrupo('${g.id}')">✕</button></div>`).join('')}</div><div class="section-sep" style="margin-top:14px">Nova frente</div><div class="field"><label>Nome</label><input id="ng-name" placeholder="Ex: Projetos"/></div><div class="field"><label>Ícone (emoji)</label><input id="ng-icon" placeholder="Ex: 🚀" maxlength="2"/></div><div class="field"><label>Cor</label><div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0">${CORES.map((cor,i)=>`<div class="coloropt" onclick="selectColorGrupo('${cor}')" id="ngco-${i}" style="background:${cor};${i===0?'border-color:var(--text)':''}"></div>`).join('')}</div></div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addGrupo()">+ Criar frente</button><button class="btn btn-outline" style="width:100%" onclick="closeModal()">Fechar</button>`;
