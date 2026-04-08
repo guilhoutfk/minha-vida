@@ -235,6 +235,18 @@ td input:focus,td select:focus{border-color:var(--green)}
     <div id="frentes-main"></div>
   </div>
   <div class="view" id="view-peso"><div id="corpo-full"></div></div>
+  <div class="view" id="view-proj">
+    <div id="proj-list-view">
+      <div class="card-title-row" style="margin-bottom:10px">
+        <div style="font-size:16px;font-weight:700">📋 Projetos</div>
+        <button class="btn btn-sm" onclick="openModal('projeto')">+ Novo projeto</button>
+      </div>
+      <div id="proj-list"></div>
+    </div>
+    <div id="proj-detail-view" style="display:none">
+      <div id="proj-detail"></div>
+    </div>
+  </div>
   <div class="view" id="view-plan">
     <div class="card">
       <div class="card-title-row">
@@ -281,8 +293,9 @@ td input:focus,td select:focus{border-color:var(--green)}
 
 <div class="bnav">
   <button class="bn active" onclick="setView('dash',this)"><div class="bn-icon">🏠</div>Dashboard</button>
+  <button class="bn" onclick="setView('proj',this)"><div class="bn-icon">📋</div>Projetos</button>
   <button class="bn" onclick="setView('peso',this)"><div class="bn-icon">💪</div>Meu corpo</button>
-  <button class="bn" onclick="setView('plan',this)"><div class="bn-icon">📊</div>Planilha</button>
+  <button class="bn" onclick="setView('plan',this)"><div class="bn-icon">📊</div>Editor</button>
 </div>
 
 <div class="modal-bg" id="modal">
@@ -414,14 +427,16 @@ const FRENTES_NOVOS=[
 ];
 
 // ── STATE ─────────────────────────────────────────────────
-let grupos=[],frentes=[],tasks={},pesoLog=[],gorduraLog=[],corpoData={altura:'',sexo:''},metaPeso={kg:'',dataFim:''};
+let grupos=[],frentes=[],tasks={},projetos=[],pesoLog=[],gorduraLog=[],corpoData={altura:'',sexo:''},metaPeso={kg:'',dataFim:''};
 let activeGrupo='todas',activeFilter='none',sortByDate=false,activeView='dash';
 let editingTask=null,selectedColor='#1D9E75',editingFrenteId=null,editingGrupoId=null;
 let undoState=null,undoTimer=null;
+let activeProjetoId=null;
 
 const saveGrupos=()=>fbSet('grupos',grupos);
 const saveFrente=()=>fbSet('frentes',frentes);
 const saveTasks=()=>fbSet('tasks',tasks);
+const saveProjetos=()=>fbSet('projetos',projetos);
 const savePeso=()=>fbSet('peso',pesoLog);
 const saveGordura=()=>fbSet('gordura',gorduraLog);
 const saveCorpo=()=>fbSet('corpo',corpoData);
@@ -475,6 +490,7 @@ auth.onAuthStateChanged(async user=>{
     corpoData   = await fbGet('corpo')   || {altura:'',sexo:''};
     metaPeso    = await fbGet('meta')    || {kg:'', dataFim:''};
     activeGrupo = await fbGet('grupo')   || 'todas';
+    projetos    = await fbGet('projetos')|| [];
 
     // Verifica se é realmente novo usuário:
     // Novo = sem tasks OU tasks vazias em TODOS os subgrupos
@@ -515,7 +531,16 @@ auth.onAuthStateChanged(async user=>{
 });
 
 // ── VIEW ─────────────────────────────────────────────────
-function setView(v,btn){activeView=v;document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(v==='plan'){renderPlanFiltros();renderPlan();}if(v==='peso')renderCorpoFull();}
+function setView(v,btn){
+  activeView=v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(v==='plan'){renderPlanFiltros();renderPlan();}
+  if(v==='peso')renderCorpoFull();
+  if(v==='proj'){showProjList();}
+}
 
 // ── METRICS ───────────────────────────────────────────────
 function renderMetrics(){
@@ -705,11 +730,237 @@ function renderPlan(){
 function planToggle(fid,tid,checked){const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t.done=checked;saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
 function planEdit(fid,tid,field,val){const t=(tasks[fid]||[]).find(t=>t.id===tid);if(t)t[field]=val;saveTasks();renderMetrics();renderTabs();renderDash();}
 function planMoveTask(oldFid,tid,newFid){if(!newFid||oldFid===newFid)return;const ol=tasks[oldFid]||[];const t=ol.find(t=>t.id===tid);if(!t)return;tasks[oldFid]=ol.filter(t=>t.id!==tid);if(!tasks[newFid])tasks[newFid]=[];tasks[newFid].push(t);saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
-function deleteTask(fid,tid){if(!confirm('Excluir esta tarefa?'))return;tasks[fid]=(tasks[fid]||[]).filter(t=>t.id!==tid);saveTasks();renderMetrics();renderTabs();renderDash();renderPlan();}
+function deleteTask(fid,tid){
+  if(!confirm('Excluir esta tarefa?'))return;
+  tasks[fid]=(tasks[fid]||[]).filter(t=>t.id!==tid);
+  saveTasks();renderMetrics();renderTabs();renderDash();
+  if(activeView==='plan')renderPlan();
+  if(activeProjetoId)renderProjDetail(activeProjetoId);
+}
+
+// ── PROJETOS ──────────────────────────────────────────────
+function showProjList(){
+  activeProjetoId=null;
+  document.getElementById('proj-list-view').style.display='block';
+  document.getElementById('proj-detail-view').style.display='none';
+  renderProjList();
+}
+
+function showProjDetail(pid){
+  activeProjetoId=pid;
+  document.getElementById('proj-list-view').style.display='none';
+  document.getElementById('proj-detail-view').style.display='block';
+  renderProjDetail(pid);
+}
+
+function renderProjList(){
+  const el=document.getElementById('proj-list');
+  if(!projetos.length){
+    el.innerHTML=`<div class="empty">Nenhum projeto criado ainda.<br>Clique em "+ Novo projeto" para começar.</div>`;
+    return;
+  }
+  el.innerHTML=projetos.map(p=>{
+    const g=grupos.find(g=>g.id===p.grupo)||{label:'',color:'#888',icon:'📋'};
+    const color=g.color;
+    const fid=p.frenteId; // subgrupo criado automaticamente
+    const tList=tasks[fid]||[];
+    const tot=tList.length;
+    const dn=tList.filter(t=>t.done).length;
+    const pct=tot?Math.round(dn/tot*100):0;
+    const dias=p.dataFim?daysFrom(p.dataFim):null;
+    return `<div class="frente" onclick="showProjDetail('${p.id}')">
+      <div class="fh">
+        <div class="fdot" style="background:${color}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="ftitle">${p.nome}</div>
+          <div class="fsubtitle">${g.icon} ${g.label}${p.dataFim?` · ${fmtDateBR(p.dataFim)}`:''}${dias!==null?` · ${dias>=0?dias+' dias restantes':'Prazo encerrado'}`:''}${p.descricao?` · ${p.descricao}`:''}</div>
+        </div>
+        <span class="fpct">${pct}% · ${dn}/${tot}</span>
+        <span style="font-size:12px;color:var(--text3)">▶</span>
+      </div>
+      <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderProjDetail(pid){
+  const p=projetos.find(p=>p.id===pid);
+  if(!p)return;
+  const g=grupos.find(g=>g.id===p.grupo)||{label:'',color:'#888',icon:'📋'};
+  const color=g.color;
+  const fid=p.frenteId;
+  const tList=tasks[fid]||[];
+  const tot=tList.length;
+  const dn=tList.filter(t=>t.done).length;
+  const pct=tot?Math.round(dn/tot*100):0;
+  const dias=p.dataFim?daysFrom(p.dataFim):null;
+
+  // Tarefas do projeto
+  const taskRows=tList.map(t=>{
+    const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
+    if(t.due&&!t.done){dtxt=fmtDate(t.due);if(d<0){dcls+=' late';dtxt='Atrasada';}else if(d===0){dcls+=' soon';dtxt='Hoje';}else if(d===1){dcls+=' soon';dtxt='Amanhã';}else if(d<=7)dcls+=' soon';}
+    return `<div class="task" onclick="toggleProjTask('${fid}','${t.id}')">
+      <div class="tcheck ${t.done?'dn':''}"></div>
+      <div class="tbody">
+        <div class="ttext ${t.done?'dn':''}">${t.text}</div>
+        ${t.note?`<div class="tnote">${t.note}</div>`:''}
+        <div class="tmeta">
+          <span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>
+          ${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''}
+          ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||''}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''}
+        </div>
+      </div>
+      <button class="btn btn-red btn-xs" onclick="event.stopPropagation();deleteTask('${fid}','${t.id}')" style="flex-shrink:0">✕</button>
+    </div>`;
+  }).join('');
+
+  // Vincular tarefas existentes (de outros subgrupos)
+  const outrasTasksOpts=allTasksFlat()
+    .filter(t=>t.fid!==fid&&!t.done)
+    .map(t=>`<option value="${t.fid}|${t.id}">${t.fgLabel} — ${t.ftitle}: ${t.text}</option>`)
+    .join('');
+
+  document.getElementById('proj-detail').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button class="btn btn-outline btn-sm" onclick="showProjList()">← Projetos</button>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:700">${p.nome}</div>
+        <div style="font-size:12px;color:var(--text2)">${g.icon} ${g.label}${p.dataFim?` · até ${fmtDateBR(p.dataFim)}`:''}${dias!==null?` · ${dias>=0?dias+' dias':' Prazo encerrado'}`:''}</div>
+      </div>
+      <button class="btn btn-outline btn-xs" onclick="openModal('editprojeto','${pid}')">✏️</button>
+      <button class="btn btn-red btn-xs" onclick="deleteProj('${pid}')">✕</button>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600">${dn} de ${tot} tarefas concluídas</span>
+        <span style="font-size:13px;font-weight:700;color:${color}">${pct}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      ${p.descricao?`<div style="font-size:12px;color:var(--text2);margin-top:8px">${p.descricao}</div>`:''}
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div class="card-title" style="margin:0">Tarefas do projeto</div>
+        <button class="btn btn-sm" onclick="openModal('task','${fid}')">+ Nova tarefa</button>
+      </div>
+      ${tList.length?`<div>${taskRows}</div>`:`<div class="empty" style="padding:1rem">Nenhuma tarefa ainda. Crie uma nova ou vincule uma existente.</div>`}
+    </div>
+
+    ${outrasTasksOpts?`<div class="card">
+      <div class="card-title">🔗 Vincular tarefa existente</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Selecione uma tarefa de outro subgrupo para mover para este projeto.</div>
+      <div class="row">
+        <select class="inp" id="vincular-select" style="font-size:12px">
+          <option value="">— Selecione uma tarefa —</option>
+          ${outrasTasksOpts}
+        </select>
+        <button class="btn btn-sm" onclick="vincularTarefa('${fid}')">Vincular</button>
+      </div>
+    </div>`:''}`;
+}
+
+function toggleProjTask(fid,tid){
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
+  if(!t.done&&t.recurrence&&t.recurrence.active){
+    undoState={fid,tid,prevDue:t.due,prevCount:t.recurrence.count||0,prevHistory:[...(t.recurrence.history||[])]};
+    if(!t.recurrence.history)t.recurrence.history=[];
+    t.recurrence.history.push(new Date().toISOString().split('T')[0]);
+    t.recurrence.count=(t.recurrence.count||0)+1;
+    t.due=nextRecDate(t.due,t.recurrence.period);
+    t.done=false;showUndoToast(t.text);
+  }else{t.done=!t.done;}
+  saveTasks();renderMetrics();renderTabs();
+  if(activeProjetoId)renderProjDetail(activeProjetoId);
+}
+
+function vincularTarefa(targetFid){
+  const val=document.getElementById('vincular-select').value;
+  if(!val){alert('Selecione uma tarefa para vincular.');return;}
+  const[oldFid,tid]=val.split('|');
+  const ol=tasks[oldFid]||[];
+  const t=ol.find(t=>t.id===tid);
+  if(!t)return;
+  tasks[oldFid]=ol.filter(t=>t.id!==tid);
+  if(!tasks[targetFid])tasks[targetFid]=[];
+  tasks[targetFid].push(t);
+  saveTasks();renderMetrics();renderTabs();renderDash();
+  renderProjDetail(activeProjetoId);
+}
+
+function deleteProj(pid){
+  const p=projetos.find(p=>p.id===pid);if(!p)return;
+  const cnt=(tasks[p.frenteId]||[]).length;
+  if(!confirm(`Excluir o projeto "${p.nome}"?${cnt>0?`\n\n${cnt} tarefa(s) serão mantidas em "Sem subgrupo".`:''}`))return;
+  // Move tarefas para órfãos
+  if(cnt>0){ensureOrphanFrente();(tasks[p.frenteId]||[]).forEach(t=>(tasks['sem-subgrupo']=tasks['sem-subgrupo']||[]).push(t));}
+  // Remove subgrupo e projeto
+  frentes=frentes.filter(f=>f.id!==p.frenteId);
+  delete tasks[p.frenteId];
+  projetos=projetos.filter(pr=>pr.id!==pid);
+  saveFrente();saveTasks();saveProjetos();
+  renderMetrics();renderTabs();renderDash();
+  showProjList();
+}
 
 // ── MODAL ─────────────────────────────────────────────────
 const CORES=['#1D9E75','#D85A30','#378ADD','#7F77DD','#D4537E','#BA7517','#639922','#085041','#E24B4A','#5DCAA5','#534AB7','#888780'];
-function openModal(mode,fid,tid){editingTask=fid&&tid?{fid,tid}:null;const c=document.getElementById('modal-content');if(mode==='task')renderTaskModal(c,fid,tid);if(mode==='config')renderConfigModal(c);document.getElementById('modal').classList.add('open');}
+function openModal(mode,fid,tid){
+  editingTask=fid&&tid?{fid,tid}:null;
+  const c=document.getElementById('modal-content');
+  if(mode==='task')renderTaskModal(c,fid,tid);
+  if(mode==='config')renderConfigModal(c);
+  if(mode==='projeto')renderProjetoModal(c,null);
+  if(mode==='editprojeto')renderProjetoModal(c,fid); // fid aqui é o pid
+  document.getElementById('modal').classList.add('open');
+}
+
+function renderProjetoModal(c,pid){
+  const ed=pid?projetos.find(p=>p.id===pid):null;
+  const gruposOpts=grupos.filter(g=>g.id!=='todas').map(g=>`<option value="${g.id}" ${ed&&ed.grupo===g.id?'selected':''}>${g.icon} ${g.label}</option>`).join('');
+  c.innerHTML=`<h3>${ed?'Editar projeto':'Novo projeto'}</h3>
+    <div class="field"><label>Nome do projeto *</label><input id="pj-nome" value="${ed?ed.nome:''}" placeholder="Ex: Festa de aniversário"/></div>
+    <div class="field"><label>Frente *</label><select id="pj-grupo"><option value="">— Selecione —</option>${gruposOpts}</select></div>
+    <div class="field"><label>Data final</label><input type="date" id="pj-data" value="${ed&&ed.dataFim?ed.dataFim:''}"/></div>
+    <div class="field"><label>Descrição</label><input id="pj-desc" value="${ed?ed.descricao||'':''}" placeholder="Opcional"/></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Ao criar o projeto, um subgrupo com o mesmo nome será criado automaticamente na frente escolhida.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn" onclick="saveProjetoModal('${pid||''}')">Salvar</button>
+    </div>`;
+  setTimeout(()=>document.getElementById('pj-nome').focus(),80);
+}
+
+function saveProjetoModal(pid){
+  const nome=(document.getElementById('pj-nome').value||'').trim();
+  if(!nome){alert('Digite o nome do projeto.');return;}
+  const grupo=document.getElementById('pj-grupo').value;
+  if(!grupo){alert('Selecione a frente do projeto.');return;}
+  const dataFim=document.getElementById('pj-data').value||'';
+  const descricao=(document.getElementById('pj-desc').value||'').trim();
+
+  if(pid){
+    // Editar projeto existente
+    const p=projetos.find(p=>p.id===pid);if(!p)return;
+    const fOld=frentes.find(f=>f.id===p.frenteId);
+    if(fOld){fOld.title=nome;fOld.grupo=grupo;}
+    p.nome=nome;p.grupo=grupo;p.dataFim=dataFim;p.descricao=descricao;
+    saveFrente();saveProjetos();
+    closeModal();renderProjDetail(pid);renderTabs();renderDash();
+  } else {
+    // Criar projeto novo — cria subgrupo automaticamente
+    const fid='pf'+uid();
+    const novaFrente={id:fid,title:nome,grupo,open:true};
+    frentes.push(novaFrente);
+    tasks[fid]=[];
+    const novoProjeto={id:'pj'+uid(),nome,grupo,frenteId:fid,dataFim,descricao};
+    projetos.push(novoProjeto);
+    saveFrente();saveTasks();saveProjetos();
+    closeModal();renderTabs();renderDash();
+    showProjDetail(novoProjeto.id);
+  }
+}
 function openEditTask(fid,tid){openModal('task',fid,tid);}
 function closeModal(){document.getElementById('modal').classList.remove('open');editingTask=null;editingFrenteId=null;editingGrupoId=null;}
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
@@ -772,7 +1023,9 @@ function saveTaskModal(){
   const recurrence=recActive?{active:true,period:recPeriod,count:0,history:[]}:null;
   if(editingTask){if(editingTask.fid!==fid){const ol=tasks[editingTask.fid]||[];const t=ol.find(t=>t.id===editingTask.tid);tasks[editingTask.fid]=ol.filter(t=>t.id!==editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;if(!tasks[fid])tasks[fid]=[];tasks[fid].push(t);}}else{const t=(tasks[fid]||[]).find(t=>t.id===editingTask.tid);if(t){t.text=text;t.p=p;t.due=due;t.note=note;t.recurrence=recurrence;}}}
   else{if(!tasks[fid])tasks[fid]=[];tasks[fid].push({id:uid(),text,done:false,p,due,note,recurrence});}
-  saveTasks();closeModal();renderMetrics();renderTabs();renderDash();if(activeView==='plan')renderPlan();
+  saveTasks();closeModal();renderMetrics();renderTabs();renderDash();
+  if(activeView==='plan')renderPlan();
+  if(activeProjetoId)renderProjDetail(activeProjetoId);
 }
 
 // ── CONFIG ────────────────────────────────────────────────
