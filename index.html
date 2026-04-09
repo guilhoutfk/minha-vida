@@ -625,8 +625,10 @@ function renderTabs(){const ga=grupos.filter(g=>{if(g.id==='todas')return true;r
 
 function setTab(gid){
   activeGrupo=gid;
-  // Ao trocar de frente, limpa filtro para mostrar tudo daquela frente
   activeFilter='none';
+  // Desativa "Por data" ao trocar de frente
+  sortByDate=false;
+  document.getElementById('sort-btn').classList.remove('on');
   document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-red'));
   fbSet('grupo',gid);renderTabs();renderDash();
 }
@@ -639,20 +641,6 @@ function setFilter(f,btn){
 }
 function toggleSort(){sortByDate=!sortByDate;document.getElementById('sort-btn').classList.toggle('on',sortByDate);renderDash();}
 
-function taskRowHtml(fid,t,showGrupo){
-  const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
-  if(t.due&&!t.done){
-    dtxt=fmtDate(t.due);
-    if(d<0){dcls+=' late';dtxt='Atrasada';}
-    else if(d===0){dcls+=' soon';dtxt='Hoje';}
-    else if(d===1){dcls+=' soon';dtxt='Amanhã';}
-    else if(d<=7)dcls+=' soon';
-  }else if(t.due&&t.done){
-    dtxt=fmtDate(t.due); // mostra data sem badge colorido
-  }
-  const color=getFrenteColor(fid);const fr=frentes.find(f=>f.id===fid);const isOrphan=fid==='sem-subgrupo';
-  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
-}
 function nextRecDate(due,period){const d=parseLocalDate(due);if(period==='diario')d.setDate(d.getDate()+1);else if(period==='semanal')d.setDate(d.getDate()+7);else if(period==='quinzenal')d.setDate(d.getDate()+15);else if(period==='mensal')d.setMonth(d.getMonth()+1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function showUndoToast(txt){const t=document.getElementById('undo-toast');document.getElementById('undo-toast-label').textContent=txt||'';t.classList.add('show');if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(dismissToast,5000);}
 function dismissToast(){document.getElementById('undo-toast').classList.remove('show');undoState=null;if(undoTimer)clearTimeout(undoTimer);}
@@ -675,18 +663,63 @@ function toggleFrente(fid){const f=frentes.find(f=>f.id===fid);if(!f)return;f.op
 
 function taskRowHtml(fid,t,showGrupo){
   const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
-  if(t.due){dtxt=fmtDate(t.due);if(d<0){dcls+=' late';dtxt='Atrasada';}else if(d===0){dcls+=' soon';dtxt='Hoje';}else if(d===1){dcls+=' soon';dtxt='Amanhã';}else if(d<=7)dcls+=' soon';}
+  if(t.due&&!t.done){
+    dtxt=fmtDate(t.due);
+    if(d<0){dcls+=' late';dtxt='Atrasada';}
+    else if(d===0){dcls+=' soon';dtxt='Hoje';}
+    else if(d===1){dcls+=' soon';dtxt='Amanhã';}
+    else if(d<=7)dcls+=' soon';
+  }else if(t.due&&t.done){
+    dtxt=fmtDate(t.due);
+  }
   const color=getFrenteColor(fid);const fr=frentes.find(f=>f.id===fid);const isOrphan=fid==='sem-subgrupo';
-  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
+  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
 }
-function sortTasks(arr){if(!sortByDate)return arr;return[...arr].sort((a,b)=>{const dA=a.due?parseLocalDate(a.due).getTime():Infinity;const dB=b.due?parseLocalDate(b.due).getTime():Infinity;if(dA!==dB)return dA-dB;return pOrd[a.p]-pOrd[b.p];});}
+function sortTasksByDate(arr){
+  // Ordena: pendentes com data primeiro (por data asc), sem data depois, concluídas por último
+  return[...arr].sort((a,b)=>{
+    // Concluídas sempre no final
+    if(a.done&&!b.done)return 1;
+    if(!a.done&&b.done)return -1;
+    // Sem data vai depois das com data
+    if(!a.due&&!b.due)return pOrd[a.p]-pOrd[b.p];
+    if(!a.due)return 1;
+    if(!b.due)return -1;
+    const dd=parseLocalDate(a.due)-parseLocalDate(b.due);
+    return dd!==0?dd:pOrd[a.p]-pOrd[b.p];
+  });
+}
 
 function renderDash(){
-  const el=document.getElementById('frentes-main');const isTodas=activeGrupo==='todas';
-  if(isTodas&&sortByDate){const ts=sortTasks(allTasksFlat().filter(t=>taskVis(t)));if(!ts.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}el.innerHTML=`<div class="frente"><div class="tasks op">${ts.map(t=>taskRowHtml(t.fid,t,true)).join('')}</div></div>`;return;}
-  let fs=isTodas?frentes:frentes.filter(f=>f.grupo===activeGrupo);fs=fs.filter(f=>(tasks[f.id]||[]).some(t=>taskVis(t)));
+  const el=document.getElementById('frentes-main');
+  const isTodas=activeGrupo==='todas';
+
+  // Modo lista flat por data — para qualquer frente selecionada
+  if(sortByDate){
+    let ts=allTasksFlat();
+    if(!isTodas)ts=ts.filter(t=>frentes.find(f=>f.id===t.fid&&f.grupo===activeGrupo));
+    ts=ts.filter(t=>taskVis(t));
+    ts=sortTasksByDate(ts);
+    if(!ts.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
+    el.innerHTML=`<div class="frente"><div class="tasks op">${ts.map(t=>taskRowHtml(t.fid,t,true)).join('')}</div></div>`;
+    return;
+  }
+
+  // Modo normal — agrupado por subgrupo, ordem alfabética
+  let fs=isTodas?frentes:frentes.filter(f=>f.grupo===activeGrupo);
+  fs=fs.filter(f=>(tasks[f.id]||[]).some(t=>taskVis(t)));
+  // Ordem alfabética dos subgrupos
+  fs=[...fs].sort((a,b)=>a.title.localeCompare(b.title,'pt'));
   if(!fs.length){el.innerHTML=`<div class="empty">Nenhuma tarefa com este filtro.</div>`;return;}
-  el.innerHTML=fs.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:'',color:'#888'};const c=g.color;let vt=(tasks[f.id]||[]).filter(t=>taskVis(t));if(sortByDate)vt=sortTasks(vt);const tot=(tasks[f.id]||[]).length;const dn=(tasks[f.id]||[]).filter(t=>t.done).length;const pct=tot?Math.round(dn/tot*100):0;return `<div class="frente"><div class="fh" onclick="toggleFrente('${f.id}')"><div class="fdot" style="background:${c}"></div><div style="flex:1;min-width:0"><div class="ftitle">${f.title}</div>${isTodas?`<div class="fsubtitle">${g.label}</div>`:''}</div><span class="fpct">${pct}% · ${dn}/${tot}</span><span class="chev ${f.open?'op':''}">▶</span></div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${c}"></div></div><div class="tasks ${f.open?'op':''}">${vt.map(t=>taskRowHtml(f.id,t,false)).join('')}</div></div>`;}).join('');
+  el.innerHTML=fs.map(f=>{
+    const g=grupos.find(g=>g.id===f.grupo)||{label:'',color:'#888'};
+    const c=g.color;
+    const vt=(tasks[f.id]||[]).filter(t=>taskVis(t));
+    const tot=(tasks[f.id]||[]).length;
+    const dn=(tasks[f.id]||[]).filter(t=>t.done).length;
+    const pct=tot?Math.round(dn/tot*100):0;
+    return `<div class="frente"><div class="fh" onclick="toggleFrente('${f.id}')"><div class="fdot" style="background:${c}"></div><div style="flex:1;min-width:0"><div class="ftitle">${f.title}</div>${isTodas?`<div class="fsubtitle">${g.label}</div>`:''}</div><span class="fpct">${pct}% · ${dn}/${tot}</span><span class="chev ${f.open?'op':''}">▶</span></div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${c}"></div></div><div class="tasks ${f.open?'op':''}">${vt.map(t=>taskRowHtml(f.id,t,false)).join('')}</div></div>`;
+  }).join('');
 }
 
 // ── PLANILHA ─────────────────────────────────────────────
@@ -795,8 +828,14 @@ function renderProjDetail(pid){
   const pct=tot?Math.round(dn/tot*100):0;
   const dias=p.dataFim?daysFrom(p.dataFim):null;
 
-  // Tarefas do projeto
-  const taskRows=tList.map(t=>{
+  // Tarefas do projeto — ordenadas por vencimento (sem data no final, concluídas no final)
+  const tListSorted=[...tList].sort((a,b)=>{
+    if(a.done&&!b.done)return 1;if(!a.done&&b.done)return -1;
+    if(!a.due&&!b.due)return pOrd[a.p]-pOrd[b.p];
+    if(!a.due)return 1;if(!b.due)return -1;
+    return parseLocalDate(a.due)-parseLocalDate(b.due);
+  });
+  const taskRows=tListSorted.map(t=>{
     const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
     if(t.due&&!t.done){dtxt=fmtDate(t.due);if(d<0){dcls+=' late';dtxt='Atrasada';}else if(d===0){dcls+=' soon';dtxt='Hoje';}else if(d===1){dcls+=' soon';dtxt='Amanhã';}else if(d<=7)dcls+=' soon';}
     return `<div class="task" onclick="toggleProjTask('${fid}','${t.id}')">
@@ -810,7 +849,10 @@ function renderProjDetail(pid){
           ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||''}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''}
         </div>
       </div>
-      <button class="btn btn-red btn-xs" onclick="event.stopPropagation();deleteTask('${fid}','${t.id}')" style="flex-shrink:0">✕</button>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();openEditTask('${fid}','${t.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="event.stopPropagation();deleteTask('${fid}','${t.id}')">✕</button>
+      </div>
     </div>`;
   }).join('');
 
