@@ -41,12 +41,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* PC: cabeçalho compacto e horizontal */
 @media(min-width:768px){
   .hdr{padding:6px 16px !important}
-  .hdr-inner{flex-direction:row !important}
+  .hdr-inner{flex-direction:row !important;max-width:1100px}
   .hdr-left{display:flex;align-items:center;gap:12px}
   .hdr-title{font-size:16px !important}
   .hdr-date{font-size:11px !important;margin-top:0 !important;color:rgba(255,255,255,0.8)}
   .hdr-user{font-size:11px !important;color:rgba(255,255,255,0.7)}
   .hdr-meta{display:flex;flex-direction:column;gap:1px}
+  /* Editor mais largo no PC */
+  #view-plan .card{max-width:1100px;margin-left:auto;margin-right:auto}
+  #view-plan{max-width:1100px;margin:0 auto}
 }
 .main{max-width:700px;margin:0 auto;padding:14px}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
@@ -97,8 +100,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .imc-val{font-size:26px;font-weight:700}
 .imc-label{font-size:13px;font-weight:600;margin-top:2px}
 .imc-range{font-size:11px;color:var(--text2);margin-top:2px}
-.tabs-wrap{background:var(--surface);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;gap:2px;overflow-x:auto}
-.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs-wrap{background:var(--surface);border-radius:var(--radius);padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;gap:2px;flex-wrap:wrap}
 .tab{font-size:12px;padding:7px 10px;border-radius:8px;border:none;background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;font-weight:500;flex-shrink:0}
 .tab.active{background:var(--green);color:white;font-weight:700}
 .tab-cnt{font-size:10px;padding:1px 5px;border-radius:8px;font-weight:700;margin-left:2px}
@@ -561,11 +563,26 @@ function renderMetrics(){
 }
 
 function setFilterMc(f){
+  // KPI sempre vai para "Todas" + ativa "Por data"
+  activeGrupo='todas';
+  sortByDate=true;
+  document.getElementById('sort-btn').classList.add('on');
+  // Atualiza tabs
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  const tabTodas=document.querySelector('.tab[onclick*="todas"]');
+  if(tabTodas)tabTodas.classList.add('active');
+  // Aplica filtro
   document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-red'));
   const ids={hoje:'fb-hoje',open:'fb-open',late:'fb-late',alta:'fb-alta',done:'fb-done'};
   const btn=document.getElementById(ids[f]);
   if(btn){if(f==='late')btn.classList.add('on-red');else btn.classList.add('on');}
-  activeFilter=f;renderDash();
+  activeFilter=f;
+  // Garante que está na view dash
+  if(activeView!=='dash'){
+    const dashBtn=document.querySelector('.bn[onclick*="dash"]');
+    if(dashBtn){document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.getElementById('view-dash').classList.add('active');document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));dashBtn.classList.add('active');activeView='dash';}
+  }
+  renderTabs();renderDash();
 }
 
 function taskVis(t){
@@ -663,6 +680,7 @@ function toggleFrente(fid){const f=frentes.find(f=>f.id===fid);if(!f)return;f.op
 
 function taskRowHtml(fid,t,showGrupo){
   const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
+  const isLate=t.due&&!t.done&&d<0;
   if(t.due&&!t.done){
     dtxt=fmtDate(t.due);
     if(d<0){dcls+=' late';dtxt='Atrasada';}
@@ -673,7 +691,30 @@ function taskRowHtml(fid,t,showGrupo){
     dtxt=fmtDate(t.due);
   }
   const color=getFrenteColor(fid);const fr=frentes.find(f=>f.id===fid);const isOrphan=fid==='sem-subgrupo';
-  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
+  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${isLate?`<button class="btn btn-xs btn-outline" style="padding:1px 6px;font-size:10px" onclick="event.stopPropagation();quickEditDate('${fid}','${t.id}')">✏️ data</button>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
+}
+
+function quickEditDate(fid,tid){
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
+  const c=document.getElementById('modal-content');
+  c.innerHTML=`<h3>📅 Atualizar data</h3>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">${t.text}</div>
+    <div class="field"><label>Nova data de vencimento</label><input type="date" id="qd-date" value="${t.due||''}"/></div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn" onclick="saveQuickDate('${fid}','${tid}')">Salvar</button>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('qd-date').focus(),80);
+}
+
+function saveQuickDate(fid,tid){
+  const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
+  const val=document.getElementById('qd-date').value;
+  if(!val){alert('Selecione uma data.');return;}
+  t.due=val;
+  saveTasks();closeModal();renderMetrics();renderTabs();renderDash();
+  if(activeView==='plan')renderPlan();
 }
 function sortTasksByDate(arr){
   // Ordena: pendentes com data primeiro (por data asc), sem data depois, concluídas por último
