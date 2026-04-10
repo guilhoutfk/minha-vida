@@ -663,21 +663,57 @@ function setFilter(f,btn){
 function toggleSort(){sortByDate=!sortByDate;document.getElementById('sort-btn').classList.toggle('on',sortByDate);renderDash();}
 
 function nextRecDate(due,period){const d=parseLocalDate(due);if(period==='diario')d.setDate(d.getDate()+1);else if(period==='semanal')d.setDate(d.getDate()+7);else if(period==='quinzenal')d.setDate(d.getDate()+15);else if(period==='mensal')d.setMonth(d.getMonth()+1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function showUndoToast(txt){const t=document.getElementById('undo-toast');document.getElementById('undo-toast-label').textContent=txt||'';t.classList.add('show');if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(dismissToast,5000);}
+function showUndoToast(txt,isRec){
+  const t=document.getElementById('undo-toast');
+  document.getElementById('undo-toast-label').textContent=txt||'';
+  // Muda texto do toast conforme o tipo
+  const subtitle=t.querySelector('span:first-child');
+  if(subtitle)subtitle.textContent=isRec?'Tarefa recorrente avançada':'Tarefa concluída';
+  t.classList.add('show');
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(dismissToast,5000);
+}
 function dismissToast(){document.getElementById('undo-toast').classList.remove('show');undoState=null;if(undoTimer)clearTimeout(undoTimer);}
-function undoRecurrence(){if(!undoState)return;const t=(tasks[undoState.fid]||[]).find(t=>t.id===undoState.tid);if(!t)return;t.due=undoState.prevDue;t.recurrence.count=undoState.prevCount;t.recurrence.history=undoState.prevHistory;undoState=null;dismissToast();saveTasks();renderMetrics();renderTabs();renderDash();}
+function undoRecurrence(){
+  if(!undoState)return;
+  const t=(tasks[undoState.fid]||[]).find(t=>t.id===undoState.tid);
+  if(!t)return;
+  if(undoState.type==='recurrence'){
+    t.due=undoState.prevDue;
+    t.recurrence.count=undoState.prevCount;
+    t.recurrence.history=undoState.prevHistory;
+  } else {
+    // Tarefa normal — volta para pendente
+    t.done=false;
+  }
+  undoState=null;dismissToast();
+  saveTasks();renderMetrics();renderTabs();renderDash();
+  if(activeProjetoId)renderProjDetail(activeProjetoId);
+}
 
 // ── DASH ─────────────────────────────────────────────────
 function toggleTask(fid,tid){
   const t=(tasks[fid]||[]).find(t=>t.id===tid);if(!t)return;
+
   if(!t.done&&t.recurrence&&t.recurrence.active){
-    undoState={fid,tid,prevDue:t.due,prevCount:t.recurrence.count||0,prevHistory:[...(t.recurrence.history||[])]};
+    // Tarefa recorrente: avança data
+    undoState={type:'recurrence',fid,tid,prevDue:t.due,prevCount:t.recurrence.count||0,prevHistory:[...(t.recurrence.history||[])]};
     if(!t.recurrence.history)t.recurrence.history=[];
     t.recurrence.history.push(new Date().toISOString().split('T')[0]);
     t.recurrence.count=(t.recurrence.count||0)+1;
     t.due=nextRecDate(t.due,t.recurrence.period);
-    t.done=false;showUndoToast(t.text);
-  } else {t.done=!t.done;}
+    t.done=false;
+    showUndoToast(t.text,true);
+  } else if(!t.done){
+    // Tarefa normal sendo concluída: salva estado para desfazer
+    undoState={type:'done',fid,tid};
+    t.done=true;
+    showUndoToast(t.text,false);
+  } else {
+    // Desmarcando tarefa já concluída: sem toast
+    t.done=false;
+    dismissToast();
+  }
   saveTasks();renderMetrics();renderTabs();renderDash();
 }
 function toggleFrente(fid){const f=frentes.find(f=>f.id===fid);if(!f)return;f.open=!f.open;saveFrente();renderDash();}
