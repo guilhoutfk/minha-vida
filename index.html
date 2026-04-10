@@ -337,25 +337,37 @@ const db=firebase.firestore();
 
 function loginGoogle(){
   const provider=new firebase.auth.GoogleAuthProvider();
-  const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if(isMobile){
+  provider.addScope('email');
+  provider.addScope('profile');
+  // Popup funciona em todos os browsers modernos incluindo Chrome Android
+  // Para Safari/iOS usamos redirect como fallback
+  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent)||/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(isSafari){
     auth.signInWithRedirect(provider).catch(e=>alert('Erro: '+e.message));
   } else {
-    auth.signInWithPopup(provider).catch(e=>alert('Erro: '+e.message));
+    auth.signInWithPopup(provider).catch(e=>{
+      // Se popup falhar (bloqueado, etc), tenta redirect
+      console.warn('Popup falhou, tentando redirect:',e);
+      auth.signInWithRedirect(provider).catch(e2=>alert('Erro: '+e2.message));
+    });
   }
 }
 function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
 
-// Processa redirect result ANTES de registrar onAuthStateChanged
-auth.getRedirectResult().catch(e=>{
-  if(e.code!=='auth/no-current-user')console.warn('redirect error:',e.code);
+// Auth flow limpo — getRedirectResult primeiro, depois onAuthStateChanged
+auth.getRedirectResult().then(result=>{
+  if(result&&result.user){
+    console.log('Login via redirect ok');
+  }
+}).catch(e=>{
+  console.warn('getRedirectResult error:',e.code);
 }).finally(()=>{
   auth.onAuthStateChanged(async user=>{
     if(user){
       await initApp(user);
-    }else{
+    } else {
       currentUID=null;
       document.getElementById('loading-screen').style.display='none';
       document.getElementById('app-root').style.display='none';
