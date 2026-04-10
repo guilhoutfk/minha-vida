@@ -940,7 +940,11 @@ function renderProjDetail(pid){
   // Vincular tarefas existentes (de outros subgrupos)
   const outrasTasksOpts=allTasksFlat()
     .filter(t=>t.fid!==fid&&!t.done)
-    .map(t=>`<option value="${t.fid}|${t.id}">${t.fgLabel} — ${t.ftitle}: ${t.text}</option>`)
+    .map(t=>{
+      const label=`${t.fgLabel} — ${t.ftitle}: ${t.text}`;
+      const truncated=label.length>60?label.slice(0,57)+'...':label;
+      return `<option value="${t.fid}|${t.id}">${truncated}</option>`;
+    })
     .join('');
 
   document.getElementById('proj-detail').innerHTML=`
@@ -974,13 +978,11 @@ function renderProjDetail(pid){
     ${outrasTasksOpts?`<div class="card">
       <div class="card-title">🔗 Vincular tarefa existente</div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Selecione uma tarefa de outro subgrupo para mover para este projeto.</div>
-      <div class="row">
-        <select class="inp" id="vincular-select" style="font-size:12px">
-          <option value="">— Selecione uma tarefa —</option>
-          ${outrasTasksOpts}
-        </select>
-        <button class="btn btn-sm" onclick="vincularTarefa('${fid}')">Vincular</button>
-      </div>
+      <select class="inp" id="vincular-select" style="font-size:12px;width:100%;margin-bottom:8px">
+        <option value="">— Selecione uma tarefa —</option>
+        ${outrasTasksOpts}
+      </select>
+      <button class="btn btn-sm" style="width:100%" onclick="vincularTarefa('${fid}')">Vincular</button>
     </div>`:''}`;
 }
 
