@@ -7,8 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Minha Vida">
-<title>Minha Vida</title>
+<meta name="apple-mobile-web-app-title" content="My Life on Hub">
+<title>My Life on Hub</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -188,8 +188,8 @@ td input:focus,td select:focus{border-color:var(--green)}
 
 <div id="login-screen">
   <div class="login-card">
-    <img src="logo.png" alt="Minha Vida" style="width:110px;height:110px;object-fit:contain;margin-bottom:8px"/>
-    <div style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px">Minha Vida</div>
+    <img src="logo.png" alt="My Life on Hub" style="width:110px;height:110px;object-fit:contain;margin-bottom:8px"/>
+    <div style="font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px">My Life on Hub</div>
     <div style="font-size:14px;color:var(--text2);margin-bottom:8px;line-height:1.5">Organize sua vida,<br>alcance seus sonhos.</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:28px;font-style:italic">gestão de vida pessoal e profissional</div>
     <button class="google-btn" onclick="loginGoogle()">
@@ -209,7 +209,7 @@ td input:focus,td select:focus{border-color:var(--green)}
 <div class="hdr">
   <div class="hdr-inner">
     <div class="hdr-left">
-      <div class="hdr-title">Minha Vida</div>
+      <div class="hdr-title">My Life on Hub</div>
       <div class="hdr-meta">
         <div class="hdr-date" id="hdr-date"></div>
         <div class="hdr-user" id="hdr-user"></div>
@@ -720,7 +720,6 @@ function toggleFrente(fid){const f=frentes.find(f=>f.id===fid);if(!f)return;f.op
 
 function taskRowHtml(fid,t,showGrupo){
   const d=daysFrom(t.due);let dcls='dbadge',dtxt='';
-  const isLate=t.due&&!t.done&&d<0;
   if(t.due&&!t.done){
     dtxt=fmtDate(t.due);
     if(d<0){dcls+=' late';dtxt='Atrasada';}
@@ -731,7 +730,25 @@ function taskRowHtml(fid,t,showGrupo){
     dtxt=fmtDate(t.due);
   }
   const color=getFrenteColor(fid);const fr=frentes.find(f=>f.id===fid);const isOrphan=fid==='sem-subgrupo';
-  return `<div class="task" onclick="toggleTask('${fid}','${t.id}')"><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${isLate?`<button class="btn btn-xs btn-outline" style="padding:1px 6px;font-size:10px" onclick="event.stopPropagation();quickEditDate('${fid}','${t.id}')">✏️ data</button>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
+  return `<div class="task"
+    onclick="toggleTask('${fid}','${t.id}')"
+    oncontextmenu="event.preventDefault();openEditTask('${fid}','${t.id}')"
+    ontouchstart="startLongPress('${fid}','${t.id}',event)"
+    ontouchend="cancelLongPress()"
+    ontouchmove="cancelLongPress()"
+  ><div class="tcheck ${t.done?'dn':''}"></div><div class="tbody"><div class="ttext ${t.done?'dn':''}">${t.text}</div>${t.note?`<div class="tnote">${t.note}</div>`:''}<div class="tmeta"><span class="pdot" style="background:${pColors[t.p]||'#888'}"></span>${dtxt?`<span class="${t.done?'dbadge':dcls}">${dtxt}</span>`:''} ${t.recurrence&&t.recurrence.active?`<span class="rec-badge">↻ ${recPeriodLbl[t.recurrence.period]||t.recurrence.period}${t.recurrence.count?` · ${t.recurrence.count}×`:''}</span>`:''} ${isOrphan?`<span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:2px 7px;border-radius:6px;font-weight:600">⚠️ Sem subgrupo</span>`:''} ${showGrupo&&fr&&!isOrphan?`<span style="font-size:10px;color:${color};font-weight:600">${fr.title}</span>`:''}</div></div></div>`;
+}
+
+// Long press para celular
+let longPressTimer=null;
+function startLongPress(fid,tid,event){
+  longPressTimer=setTimeout(()=>{
+    event.preventDefault();
+    openEditTask(fid,tid);
+  },600);
+}
+function cancelLongPress(){
+  if(longPressTimer){clearTimeout(longPressTimer);longPressTimer=null;}
 }
 
 function quickEditDate(fid,tid){
@@ -1093,7 +1110,7 @@ document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.cu
 function renderTaskModal(c,fid,tid){
   const ed=editingTask?((tasks[fid]||[]).find(t=>t.id===tid)||null):null;
   const rec=ed&&ed.recurrence?ed.recurrence:{active:false,period:'semanal',count:0};
-  const fOpts=`<option value="">— Selecione um subgrupo —</option>`+frentes.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:''};const sel=ed&&fid===f.id?'selected':'';return `<option value="${f.id}" ${sel}>${g.label} — ${f.title}</option>`;}).join('');
+  const fOpts=`<option value="">— Selecione um subgrupo —</option>`+frentes.map(f=>{const g=grupos.find(g=>g.id===f.grupo)||{label:''};const sel=(ed&&fid===f.id)||((!ed)&&fid&&fid===f.id)?'selected':'';return `<option value="${f.id}" ${sel}>${g.label} — ${f.title}</option>`;}).join('');
   c.innerHTML=`<h3>${ed?'Editar tarefa':'Nova tarefa'}</h3>
     <div class="field"><label>Tarefa *</label><input id="m-text" value="${ed?ed.text||'':''}" placeholder="Descrição da tarefa"/></div>
     <div class="field"><label>Subgrupo *</label><select id="m-frente">${fOpts}</select></div>
