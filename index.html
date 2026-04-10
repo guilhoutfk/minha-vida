@@ -348,15 +348,6 @@ function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
 
-// Processa retorno do redirect no celular
-auth.getRedirectResult().then(result=>{
-  // tratado pelo onAuthStateChanged
-}).catch(e=>{
-  if(e.code&&e.code!=='auth/no-current-user'&&e.code!=='auth/null-user'){
-    console.warn('Redirect error:',e);
-  }
-});
-
 async function fbSet(key,value){
   if(!currentUID)return;
   localStorage.setItem('fb_'+currentUID+'_'+key,JSON.stringify(value));
@@ -477,61 +468,80 @@ async function migrateFromLocalStorage(){
 }
 
 // ── AUTH ─────────────────────────────────────────────────
-auth.onAuthStateChanged(async user=>{
+async function initApp(user){
+  currentUID=user.uid;
   document.getElementById('login-screen').style.display='none';
-  if(user){
-    currentUID=user.uid;
-    document.getElementById('loading-screen').style.display='flex';
+  document.getElementById('loading-screen').style.display='flex';
 
-    const migrated=await migrateFromLocalStorage();
+  const migrated=await migrateFromLocalStorage();
 
-    // Carrega dados
-    grupos      = await fbGet('grupos')  || GRUPOS_DEF;
-    const fbFrentes = await fbGet('frentes');
-    const fbTasks   = await fbGet('tasks');
-    pesoLog     = await fbGet('peso')    || [];
-    gorduraLog  = await fbGet('gordura') || [];
-    corpoData   = await fbGet('corpo')   || {altura:'',sexo:''};
-    metaPeso    = await fbGet('meta')    || {kg:'', dataFim:''};
-    activeGrupo = await fbGet('grupo')   || 'todas';
-    projetos    = await fbGet('projetos')|| [];
+  grupos      = await fbGet('grupos')  || GRUPOS_DEF;
+  const fbFrentes = await fbGet('frentes');
+  const fbTasks   = await fbGet('tasks');
+  pesoLog     = await fbGet('peso')    || [];
+  gorduraLog  = await fbGet('gordura') || [];
+  corpoData   = await fbGet('corpo')   || {altura:'',sexo:''};
+  metaPeso    = await fbGet('meta')    || {kg:'', dataFim:''};
+  activeGrupo = await fbGet('grupo')   || 'todas';
+  projetos    = await fbGet('projetos')|| [];
 
-    // Verifica se é realmente novo usuário:
-    // Novo = sem tasks OU tasks vazias em TODOS os subgrupos
-    const temTasks = fbTasks && Object.values(fbTasks).some(arr=>Array.isArray(arr)&&arr.length>0);
-
-    if(!temTasks){
-      // Novo usuário: recebe subgrupos padrão com tasks vazias
-      frentes=FRENTES_NOVOS;
-      tasks={};FRENTES_NOVOS.forEach(f=>{tasks[f.id]=[];});
-      await saveFrente();await saveTasks();
-    } else {
-      // Usuário existente: carrega tudo do Firebase
-      frentes = fbFrentes && fbFrentes.length>0 ? fbFrentes : FRENTES_NOVOS;
-      tasks   = fbTasks;
-    }
-
-    // Garante grupos padrão
-    let changed=false;
-    GRUPOS_DEF.forEach(def=>{if(!grupos.find(g=>g.id===def.id)){grupos.push(def);changed=true;}});
-    if(changed)saveGrupos();
-
-    document.getElementById('hdr-user').textContent=user.displayName||user.email;
-    const av=document.getElementById('user-avatar');
-    if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
-    document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-    document.getElementById('loading-screen').style.display='none';
-    document.getElementById('app-root').style.display='block';
-
-    if(migrated)setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
-
-    renderMetrics();renderPesoCard();renderTabs();renderDash();
+  const temTasks = fbTasks && Object.values(fbTasks).some(arr=>Array.isArray(arr)&&arr.length>0);
+  if(!temTasks){
+    frentes=FRENTES_NOVOS;
+    tasks={};FRENTES_NOVOS.forEach(f=>{tasks[f.id]=[];});
+    await saveFrente();await saveTasks();
   } else {
-    currentUID=null;
-    document.getElementById('loading-screen').style.display='none';
-    document.getElementById('app-root').style.display='none';
-    document.getElementById('login-screen').style.display='flex';
+    frentes = fbFrentes && fbFrentes.length>0 ? fbFrentes : FRENTES_NOVOS;
+    tasks   = fbTasks;
   }
+
+  let changed=false;
+  GRUPOS_DEF.forEach(def=>{if(!grupos.find(g=>g.id===def.id)){grupos.push(def);changed=true;}});
+  if(changed)saveGrupos();
+
+  document.getElementById('hdr-user').textContent=user.displayName||user.email;
+  const av=document.getElementById('user-avatar');
+  if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
+  document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('app-root').style.display='block';
+
+  if(migrated)setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
+  renderMetrics();renderPesoCard();renderTabs();renderDash();
+}
+
+// Primeiro tenta processar resultado de redirect (celular)
+// Depois observa mudanças de estado normalmente
+auth.getRedirectResult().then(result=>{
+  if(result&&result.user){
+    // Veio de um redirect — inicia app diretamente
+    initApp(result.user);
+  } else {
+    // Sem redirect — observa estado normal
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        initApp(user);
+      } else {
+        currentUID=null;
+        document.getElementById('loading-screen').style.display='none';
+        document.getElementById('app-root').style.display='none';
+        document.getElementById('login-screen').style.display='flex';
+      }
+    });
+  }
+}).catch(e=>{
+  console.warn('Redirect error:',e);
+  // Em caso de erro, observa estado normal
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      initApp(user);
+    } else {
+      currentUID=null;
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('app-root').style.display='none';
+      document.getElementById('login-screen').style.display='flex';
+    }
+  });
 });
 
 // ── VIEW ─────────────────────────────────────────────────
