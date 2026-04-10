@@ -324,7 +324,7 @@ td input:focus,td select:focus{border-color:var(--green)}
 <script>
 firebase.initializeApp({
   apiKey:"AIzaSyCo1YkVSRareO6yBeutj_8qW1GpYSe91mk",
-  authDomain:"mylifeonhub.com.br",
+  authDomain:"mylifeonhub.firebaseapp.com",
   projectId:"mylifeonhub",
   storageBucket:"mylifeonhub.firebasestorage.app",
   messagingSenderId:"43270735546",
@@ -335,8 +335,8 @@ const db=firebase.firestore();
 
 function loginGoogle(){
   const provider=new firebase.auth.GoogleAuthProvider();
-  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  if(isSafari){
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
     auth.signInWithRedirect(provider).catch(e=>alert('Erro: '+e.message));
   } else {
     auth.signInWithPopup(provider).catch(e=>alert('Erro: '+e.message));
@@ -346,11 +346,9 @@ function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
 
-// Necessário para processar o retorno do redirect no Safari/iPhone
+// Processa retorno do redirect no celular
 auth.getRedirectResult().then(result=>{
-  if(result&&result.user){
-    // Login via redirect bem sucedido — onAuthStateChanged cuida do resto
-  }
+  // tratado pelo onAuthStateChanged
 }).catch(e=>{
   if(e.code&&e.code!=='auth/no-current-user'&&e.code!=='auth/null-user'){
     console.warn('Redirect error:',e);
