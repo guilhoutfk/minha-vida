@@ -348,6 +348,27 @@ function confirmLogout(){if(confirm('Sair da conta?'))auth.signOut();}
 
 let currentUID=null;
 
+// Fluxo de auth — onAuthStateChanged é a fonte de verdade
+// getRedirectResult processa o resultado do redirect ANTES do state change
+(async()=>{
+  try{
+    await auth.getRedirectResult();
+  }catch(e){
+    console.warn('Redirect result error:',e);
+  }
+  // Após processar redirect, observa estado
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      await initApp(user);
+    } else {
+      currentUID=null;
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('app-root').style.display='none';
+      document.getElementById('login-screen').style.display='flex';
+    }
+  });
+})();
+
 async function fbSet(key,value){
   if(!currentUID)return;
   localStorage.setItem('fb_'+currentUID+'_'+key,JSON.stringify(value));
@@ -509,40 +530,6 @@ async function initApp(user){
   if(migrated)setTimeout(()=>alert('✅ Seus dados foram sincronizados com a nuvem!'),500);
   renderMetrics();renderPesoCard();renderTabs();renderDash();
 }
-
-// Primeiro tenta processar resultado de redirect (celular)
-// Depois observa mudanças de estado normalmente
-auth.getRedirectResult().then(result=>{
-  if(result&&result.user){
-    // Veio de um redirect — inicia app diretamente
-    initApp(result.user);
-  } else {
-    // Sem redirect — observa estado normal
-    auth.onAuthStateChanged(user=>{
-      if(user){
-        initApp(user);
-      } else {
-        currentUID=null;
-        document.getElementById('loading-screen').style.display='none';
-        document.getElementById('app-root').style.display='none';
-        document.getElementById('login-screen').style.display='flex';
-      }
-    });
-  }
-}).catch(e=>{
-  console.warn('Redirect error:',e);
-  // Em caso de erro, observa estado normal
-  auth.onAuthStateChanged(user=>{
-    if(user){
-      initApp(user);
-    } else {
-      currentUID=null;
-      document.getElementById('loading-screen').style.display='none';
-      document.getElementById('app-root').style.display='none';
-      document.getElementById('login-screen').style.display='flex';
-    }
-  });
-});
 
 // ── VIEW ─────────────────────────────────────────────────
 function setView(v,btn){
